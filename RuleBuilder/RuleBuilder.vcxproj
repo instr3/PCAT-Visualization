@@ -25,6 +25,7 @@
     <Bison Include="rule.y" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Generated\rule.flex.cpp" />
     <ClCompile Include="Generated\rule.tab.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
