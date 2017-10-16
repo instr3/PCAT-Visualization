@@ -18,13 +18,10 @@
     <Flex Include="rule.l" />
   </ItemGroup>
   <ItemGroup>
-    <Bison Include="rule.y" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Generated\rule.tab.cpp">
+    <ClCompile Include="Generated\rule.flex.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,8 +29,8 @@
     <ClInclude Include="Generated\rule.tab.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Generated\rule.flex.cpp">
-      <Filter>源文件</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Bison Include="rule.y" />
   </ItemGroup>
 </Project>

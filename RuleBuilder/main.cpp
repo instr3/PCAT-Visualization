@@ -3,6 +3,7 @@
 using namespace std;
 
 int yyparse();
+extern int yylex();
 extern FILE* yyin;
 
 int main(int argc, char* args[]) {
@@ -17,6 +18,7 @@ int main(int argc, char* args[]) {
 		}
 	}
 
-	yyparse();
+	// yyparse();
+	yylex();
 	return 0;
 }
