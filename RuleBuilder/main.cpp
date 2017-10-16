@@ -7,7 +7,7 @@ extern int yylex();
 extern FILE* yyin;
 
 int main(int argc, char* args[]) {
-	if (argc > 1) {
+	if (true) {
 		FILE *file = fopen("test.txt", "r");
 		if (!file) {
 			cerr << "Can't open file" << endl;
@@ -17,7 +17,6 @@ int main(int argc, char* args[]) {
 			yyin = file;
 		}
 	}
-
 	// yyparse();
 	yylex();
 	return 0;
