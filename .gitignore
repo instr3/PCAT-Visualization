@@ -286,3 +286,9 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+tutorial
+win_flex_bison-latest
+/Compiler/Generated
+/RuleBuilder/Generated/rule.flex.cpp
+/RuleBuilder/Generated/rule.tab.cpp
+/RuleBuilder/Generated/rule.tab.h
