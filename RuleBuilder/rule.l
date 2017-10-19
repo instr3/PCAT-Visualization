@@ -7,7 +7,7 @@ struct offset_t
 {
 	int line,col;
 }current_offset={}, token_offset={};
-char string_buffer[MAX_STRING_BUFFER+1]; int p_string_buffer;
+char string_buffer[MAX_STRING_BUFFER+2]; int p_string_buffer;
 char error_info_buffer[1024];
 
 void new_token(const char *type, char *token=0, int offset_line=-1, int offset_col=-1)
@@ -15,10 +15,9 @@ void new_token(const char *type, char *token=0, int offset_line=-1, int offset_c
 	if(!token)
 		token=yytext;
 	if(offset_col==-1)
-	{
 		offset_col=token_offset.col;
+	if(offset_line==-1)
 		offset_line=token_offset.line;
-	}
 	printf("[New %s] @ line %d, col %d%s%s\n", type, offset_line+1, offset_col+1, *token?": ":"", token);
 }
 void invalid_token(const char *text, char *token=0, int offset_line=-1, int offset_col=-1)
@@ -26,10 +25,9 @@ void invalid_token(const char *text, char *token=0, int offset_line=-1, int offs
 	if(!token)
 		token=yytext;
 	if(offset_col==-1)
-	{
 		offset_col=token_offset.col;
+	if(offset_line==-1)
 		offset_line=token_offset.line;
-	}
 	printf("[Error: %s] @ line %d, col %d%s%s\n", text, offset_line+1, offset_col+1, *token?": ":"", token);
 
 }
@@ -69,10 +67,10 @@ WS			[ \t]+
 {delimiter}				new_token("DELIMETER");
 {RESERVED}				new_token("RESERVED");
 {ID}					if(yyleng>MAX_ID_LEN) invalid_token("TOO LONG ID"); else new_token("ID");
-{INTEGER}				if(yyleng>10||strtoll(yytext,0,10)>2147483647)invalid_token("TOO BIG INTEGER"); else new_token("NUMBER");
+{INTEGER}				if(strtoll(yytext,0,10)>2147483647)invalid_token("TOO BIG INTEGER"); else new_token("NUMBER");
 {REAL}					new_token("NUMBER");
 \"						p_string_buffer=0,BEGIN(SEG_STRING);
-<SEG_STRING>\"			if(p_string_buffer<=MAX_STRING_BUFFER) string_buffer[p_string_buffer]=0,new_token("STRING", string_buffer),BEGIN(INITIAL); else invalid_token("TOO LONG STRING"),BEGIN(INITIAL);
+<SEG_STRING>\"			string_buffer[p_string_buffer]=0,p_string_buffer<=MAX_STRING_BUFFER?(token_offset.col-=p_string_buffer+1,new_token("STRING", string_buffer)):invalid_token("TOO LONG STRING", string_buffer),BEGIN(INITIAL);
 <SEG_STRING>\n			|
 <SEG_STRING><<EOF>>		string_buffer[p_string_buffer]=0,invalid_token("UNBALANCED QUOTES", string_buffer),BEGIN(INITIAL);
 <SEG_STRING>[[:print:]]	if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
