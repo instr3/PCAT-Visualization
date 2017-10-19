@@ -50,7 +50,7 @@ void invalid_token(const char *text, char *token=0, int offset_line=-1, int offs
 %option     nounput
 %option     noyywrap
 
-REVERSED	"AND"|"ARRAY"|"BEGIN"|"BY"|"DIV"|"DO"|"ELSE"|"ELSIF"|"END"|"EXIT"|"FOR"|"IF"|"IN"|"IS"|"LOOP"|"MOD"|"NOT"|"OF"|"OR"|"OUT"|"PROCEDURE"|"PROGRAM"|"READ"|"RECORD"|"RETURN"|"THEN"|"TO"|"TYPE"|"VAR"|"WHILE"|"WRITE"
+RESERVED	"AND"|"ARRAY"|"BEGIN"|"BY"|"DIV"|"DO"|"ELSE"|"ELSIF"|"END"|"EXIT"|"FOR"|"IF"|"IN"|"IS"|"LOOP"|"MOD"|"NOT"|"OF"|"OR"|"OUT"|"PROCEDURE"|"PROGRAM"|"READ"|"RECORD"|"RETURN"|"THEN"|"TO"|"TYPE"|"VAR"|"WHILE"|"WRITE"
 letter		[a-zA-Z]
 digit		[0-9]
 operator	":="|"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"="|"<>"
@@ -67,7 +67,7 @@ WS			[ \t]+
 {WS}					/* skip blanks and tabs */
 {operator}				new_token("OPERATOR");
 {delimiter}				new_token("DELIMETER");
-{REVERSED}				new_token("REVERSED");
+{RESERVED}				new_token("RESERVED");
 {ID}					if(yyleng>MAX_ID_LEN) invalid_token("TOO LONG ID"); else new_token("ID");
 {INTEGER}				if(yyleng>10||strtoll(yytext,0,10)>2147483647)invalid_token("TOO BIG INTEGER"); else new_token("NUMBER");
 {REAL}					new_token("NUMBER");
