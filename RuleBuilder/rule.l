@@ -8,6 +8,7 @@ struct offset_t
 	int line,col;
 }current_offset={}, token_offset={};
 char string_buffer[MAX_STRING_BUFFER+1]; int p_string_buffer;
+char error_info_buffer[1024];
 
 void new_token(const char *type, char *token=0, int offset_line=-1, int offset_col=-1)
 {
@@ -18,7 +19,7 @@ void new_token(const char *type, char *token=0, int offset_line=-1, int offset_c
 		offset_col=token_offset.col;
 		offset_line=token_offset.line;
 	}
-	printf("[ New %s @ line %d, col %d%s%s ]\n", type, offset_line+1, offset_col+1, *token?": ":"", token);
+	printf("[New %s] @ line %d, col %d%s%s\n", type, offset_line+1, offset_col+1, *token?": ":"", token);
 }
 void invalid_token(const char *text, char *token=0, int offset_line=-1, int offset_col=-1)
 {
@@ -29,7 +30,7 @@ void invalid_token(const char *text, char *token=0, int offset_line=-1, int offs
 		offset_col=token_offset.col;
 		offset_line=token_offset.line;
 	}
-	printf("[Error] %s @ line %d, col %d%s%s\n", text, offset_line+1, offset_col+1, *token?": ":"", token);
+	printf("[Error: %s] @ line %d, col %d%s%s\n", text, offset_line+1, offset_col+1, *token?": ":"", token);
 
 }
 #define YY_USER_ACTION do\
@@ -75,11 +76,11 @@ WS			[ \t]+
 <SEG_STRING>\n			|
 <SEG_STRING><<EOF>>		string_buffer[p_string_buffer]=0,invalid_token("UNBALANCED QUOTES", string_buffer),BEGIN(INITIAL);
 <SEG_STRING>[[:print:]]	if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
-<SEG_STRING>.			invalid_token("INVALID CHARACTER IN STRING", string_buffer); /* if control characters appears in string, throw errors */
+<SEG_STRING>.			sprintf(error_info_buffer,"\\x%02x",*yytext),invalid_token("INVALID CHARACTER IN STRING",error_info_buffer); /* if control characters appears in string, throw errors */
 "(*"					BEGIN(SEG_COMMENT),new_token("COMMENT BLOCK","");
 <SEG_COMMENT>"*)"		BEGIN(INITIAL);
 <SEG_COMMENT><<EOF>>	invalid_token("UNTERMINATED COMMENT"),BEGIN(INITIAL);
 <SEG_COMMENT>.			/* skip content in comment */
 <INITIAL,SEG_COMMENT>\n	/* skip \n */
-.						invalid_token("UNIDENTIFIED CHARACTER");
+.						sprintf(error_info_buffer,"\\x%02x",*yytext),invalid_token("UNIDENTIFIED CHARACTER",error_info_buffer);
 %%
