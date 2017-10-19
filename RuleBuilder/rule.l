@@ -1,6 +1,7 @@
 %{
 #include "rule.tab.h"
 #define MAX_STRING_BUFFER 255
+#define MAX_ID_LEN 255
 
 struct offset_t
 {
@@ -62,20 +63,23 @@ WS			[ \t]+
 %x SEG_COMMENT
 
 %%
-{WS}        /* skip blanks and tabs */
-{operator}			new_token("OPERATOR");
-{delimiter}			new_token("DELIMETER");
-{REVERSED}			new_token("REVERSED");
-{ID}				new_token("ID"); // Todo: limit length
-{INTEGER}|{REAL}	new_token("NUMBER");
-\"					p_string_buffer=0,BEGIN(SEG_STRING);
-<SEG_STRING>\"		if(p_string_buffer<=MAX_STRING_BUFFER) string_buffer[p_string_buffer]=0,new_token("STRING", string_buffer),BEGIN(INITIAL); else invalid_token("TOO LONG STRING"),BEGIN(INITIAL);
-<SEG_STRING>\n		|
-<SEG_STRING><<EOF>>	string_buffer[p_string_buffer]=0,invalid_token("UNBALANCED QUOTES ", string_buffer),BEGIN(INITIAL);
-<SEG_STRING>.		if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
-"(*"				BEGIN(SEG_COMMENT),new_token("COMMENT BLOCK","");
-<SEG_COMMENT>"*)"	BEGIN(INITIAL);
-<SEG_COMMENT><<EOF>>	invalid_token("UNTERMINATED COMMENT");
-<SEG_COMMENT>.		
-.					invalid_token("UNIDENTIFIED CHARACTER");
+{WS}					/* skip blanks and tabs */
+{operator}				new_token("OPERATOR");
+{delimiter}				new_token("DELIMETER");
+{REVERSED}				new_token("REVERSED");
+{ID}					if(yyleng>MAX_ID_LEN) invalid_token("TOO LONG ID"); else new_token("ID");
+{INTEGER}|{REAL}		new_token("NUMBER");
+\"						p_string_buffer=0,BEGIN(SEG_STRING);
+<SEG_STRING>\"			if(p_string_buffer<=MAX_STRING_BUFFER) string_buffer[p_string_buffer]=0,new_token("STRING", string_buffer),BEGIN(INITIAL); else invalid_token("TOO LONG STRING"),BEGIN(INITIAL);
+<SEG_STRING>\n			|
+<SEG_STRING><<EOF>>		string_buffer[p_string_buffer]=0,invalid_token("UNBALANCED QUOTES", string_buffer),BEGIN(INITIAL);
+<SEG_STRING>.			if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
+"(*"					BEGIN(SEG_COMMENT),new_token("COMMENT BLOCK","");
+<SEG_COMMENT>"*)"		BEGIN(INITIAL);
+<SEG_COMMENT><<EOF>>	invalid_token("UNTERMINATED COMMENT"),BEGIN(INITIAL);
+<SEG_COMMENT>.			/* skip content in comment */
+.						invalid_token("UNIDENTIFIED CHARACTER");
 %%
+
+// Todo: Invalid character in string
+// Todo: Integer out of range

@@ -7,8 +7,8 @@ extern int yylex();
 extern FILE* yyin;
 
 int main(int argc, char* args[]) {
-	if (true) {
-		FILE *file = fopen("test.txt", "r");
+	if (argc>1) {
+		FILE *file = fopen(args[1], "r");
 		if (!file) {
 			cerr << "Can't open file" << endl;
 			return 1;
