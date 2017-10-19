@@ -68,18 +68,18 @@ WS			[ \t]+
 {delimiter}				new_token("DELIMETER");
 {REVERSED}				new_token("REVERSED");
 {ID}					if(yyleng>MAX_ID_LEN) invalid_token("TOO LONG ID"); else new_token("ID");
-{INTEGER}|{REAL}		new_token("NUMBER");
+{INTEGER}				if(yyleng>10||strtoll(yytext,0,10)>2147483647)invalid_token("TOO BIG INTEGER"); else new_token("NUMBER");
+{REAL}					new_token("NUMBER");
 \"						p_string_buffer=0,BEGIN(SEG_STRING);
 <SEG_STRING>\"			if(p_string_buffer<=MAX_STRING_BUFFER) string_buffer[p_string_buffer]=0,new_token("STRING", string_buffer),BEGIN(INITIAL); else invalid_token("TOO LONG STRING"),BEGIN(INITIAL);
 <SEG_STRING>\n			|
 <SEG_STRING><<EOF>>		string_buffer[p_string_buffer]=0,invalid_token("UNBALANCED QUOTES", string_buffer),BEGIN(INITIAL);
-<SEG_STRING>.			if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
+<SEG_STRING>[[:print:]]	if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];
+<SEG_STRING>.			invalid_token("INVALID CHARACTER IN STRING", string_buffer); /* if control characters appears in string, throw errors */
 "(*"					BEGIN(SEG_COMMENT),new_token("COMMENT BLOCK","");
 <SEG_COMMENT>"*)"		BEGIN(INITIAL);
 <SEG_COMMENT><<EOF>>	invalid_token("UNTERMINATED COMMENT"),BEGIN(INITIAL);
 <SEG_COMMENT>.			/* skip content in comment */
+<INITIAL,SEG_COMMENT>\n	/* skip \n */
 .						invalid_token("UNIDENTIFIED CHARACTER");
 %%
-
-// Todo: Invalid character in string
-// Todo: Integer out of range
