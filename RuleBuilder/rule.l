@@ -6,7 +6,7 @@
 
 struct offset_t
 {
-	int line,col;
+	int line,col,pos;
 }current_offset={}, token_offset={};
 char string_buffer[MAX_STRING_BUFFER+2]; int p_string_buffer;
 char error_info_buffer[1024];
@@ -20,31 +20,28 @@ char error_info_buffer[1024];
 #define commit_token(type_macro, ...) new_token(type_macro, #type_macro, ##__VA_ARGS__)
 #define YIELD ((void *)0), 
 #endif
-#define TT return NEWT;
 
-void new_token(int type_macro, const char *type, char *token=0, int offset_line=-1, int offset_col=-1)
+
+void new_token(int type_macro, const char *type, char *token=0)
 {
 	if(!token)
 		token=yytext;
-	if(offset_col==-1)
-		offset_col=token_offset.col;
-	if(offset_line==-1)
-		offset_line=token_offset.line;
+	int offset_col=token_offset.col;
+	int offset_line=token_offset.line;
+	int offset_pos=token_offset.pos;
 #ifndef USER_BISON
 	printf("[New %s] @ line %d, col %d%s%s\n", type, offset_line+1, offset_col+1, *token?": ":"", token);
 #else
 	if(type_macro!=IGNORED)
-		yylval.id = create_node(type_macro, type, offset_line, offset_col, strlen(yytext), 0);
+		yylval.id = create_node(type_macro, type, offset_pos, strlen(yytext), 0);
 #endif
 }
-int invalid_token(const char *text, char *token=0, int offset_line=-1, int offset_col=-1)
+int invalid_token(const char *text, char *token=0)
 {
 	if(!token)
 		token=yytext;
-	if(offset_col==-1)
-		offset_col=token_offset.col;
-	if(offset_line==-1)
-		offset_line=token_offset.line;
+	int offset_col=token_offset.col;
+	int offset_line=token_offset.line;
 	printf("[Error: %s] @ line %d, col %d%s%s\n", text, offset_line+1, offset_col+1, *token?": ":"", token);
 	return INVALID; // Uncommited token
 }
@@ -59,6 +56,7 @@ int invalid_token(const char *text, char *token=0, int offset_line=-1, int offse
 			current_offset.col=0;\
 		}\
 		else current_offset.col++;\
+		current_offset.pos++;\
 	}\
 }while(0);
 %}
