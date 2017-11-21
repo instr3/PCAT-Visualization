@@ -21,12 +21,18 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Generated\rule.flex.cpp">
+    <ClCompile Include="Generated\rule.tab.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="syntax_tree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generated\rule.tab.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="syntax_tree.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

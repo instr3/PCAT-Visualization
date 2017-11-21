@@ -22,10 +22,12 @@
     <Flex Include="rule.l" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Generated\rule.flex.cpp" />
+    <ClCompile Include="syntax_tree.cpp" />
+    <ClCompile Include="Generated\rule.tab.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="syntax_tree.h" />
     <ClInclude Include="Generated\rule.tab.h" />
   </ItemGroup>
   <ItemGroup>

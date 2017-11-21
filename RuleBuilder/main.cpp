@@ -2,7 +2,7 @@
 #include <stdio.h>
 using namespace std;
 
-int yyparse();
+extern int yyparse();
 extern int yylex();
 extern FILE* yyin;
 
@@ -17,7 +17,8 @@ int main(int argc, char* args[]) {
 			yyin = file;
 		}
 	}
-	// yyparse();
-	yylex();
+	while(1)
+		yyparse();
+	system("pause");
 	return 0;
 }
