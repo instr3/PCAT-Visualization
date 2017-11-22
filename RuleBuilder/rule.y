@@ -6,7 +6,8 @@ using namespace std;
 #include "rule.flex.cpp"
 #include "../syntax_tree.h"
 void yyerror(const char* msg) {
-  cerr << msg << endl;
+  cerr << msg <<"!" << endl;
+  while(1);
 }
 
 node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=NULL) 
@@ -38,7 +39,7 @@ node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=
     vector<node_t *> *ids;
 }
 
-
+%error-verbose
 %token <id> NUMBER
 %token <id> INVALID ID STRING IGNORED
 %token <id> PROGRAM IS BEGINT END VAR TYPE PROCEDURE ARRAY RECORD
@@ -46,12 +47,13 @@ node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=
        FOR EXIT RETURN TO BY AND OR NOT OF DIV MOD
        LPAREN  RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON DOT
        SEMICOLON COMMA ASSIGN PLUS MINUS STAR SLASH BACKSLASH EQ
-       NEQ LT LE GT GE LABRACKET RABRACKET 
-%token <id> EOL
+       NEQ LT LE GT GE LABRACKET RABRACKET TRUE FALSE NIL
+%token <id> EOL EOFT
 /*%type <id> exp
 %type <id> factor
 %type <id> term*/
 %type <id> expression lvalue type program body 
+%type <id> or_operand and_operand relationship summand factor unary term
 %type <ids> actual_params_suffix comp_values_suffix array_values_suffix write_params_suffix
 	declaration_list_suffix var_decl_list_suffix type_decl_list_suffix procedure_decl_list_suffix component_list_suffix
 	formal_params_suffix id_list_suffix statement_list_suffix lvalue_list_suffix elsif_sentence_list_suffix
@@ -64,9 +66,10 @@ node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=
 calc:
 	| calc statement EOL { cout << "Statement, root = " << $2->id << endl; }
 	| calc expression EOL { cout << "Expression, root = " << $2->id << endl; }
+	| calc program EOFT { cout << "Program, root = " << $2->id << endl; }
 	;
 
-program: PROGRAM IS body SEMICOLON { $$ = helper_uniop(write,$3)->rebound($1)->rebound($4); }
+program: PROGRAM IS body SEMICOLON { $$ = helper_uniop(program,$3)->rebound($1)->rebound($4); }
 
 body: declaration_list BEGINT statement_list END {$$=helper_biop(body,$1,$3)->rebound($4);}
 
@@ -75,14 +78,10 @@ declaration_list: declaration_list_suffix {$$=extract_id_list("declaration_list"
 declaration_list_suffix: declaration {$$=new vector<node_t *>();$$->push_back($1);}
 	| declaration_list_suffix declaration {$$=$1;$$->push_back($2);}
 
-declaration: VAR var_decl {$$ = $2->rebound($1);}
-	| TYPE type_decl {$$ = $2->rebound($1);}
-	| PROCEDURE procedure_decl {$$ = $2->rebound($1);}
-
-declaration_list: declaration_list_suffix {$$=extract_id_list("declaration_list",$1);}
-
-declaration_list_suffix: declaration {$$=new vector<node_t *>();$$->push_back($1);}
-	| declaration_list_suffix declaration {$$=$1;$$->push_back($2);}
+declaration:
+	| VAR var_decl_list {$$ = $2->rebound($1);}
+	| TYPE type_decl_list {$$ = $2->rebound($1);}
+	| PROCEDURE procedure_decl_list {$$ = $2->rebound($1);}
 
 var_decl_list: var_decl_list_suffix {$$=extract_id_list("var_decl_list",$1);}
 
@@ -173,23 +172,46 @@ write_params_suffix: LPAREN write_expr {$$=new vector<node_t *>();$$->push_back(
 write_expr: STRING
 	| expression
 
-expression: NUMBER
+expression: or_operand
+
+or_operand: and_operand
+	| or_operand OR and_operand { $$ = helper_biop(or,$1,$3); }
+
+and_operand: relationship
+	| and_operand AND relationship { $$ = helper_biop(and,$1,$3); }
+
+relationship: summand
+	| summand LT summand { $$ = helper_biop(lt,$1,$3); }
+	| summand GT summand { $$ = helper_biop(gt,$1,$3); }
+	| summand LE summand { $$ = helper_biop(le,$1,$3); }
+	| summand GE summand { $$ = helper_biop(ge,$1,$3); }
+	| summand EQ summand { $$ = helper_biop(eq,$1,$3); }
+	| summand NEQ summand { $$ = helper_biop(neq,$1,$3); }
+
+summand: factor
+	| summand PLUS factor { $$ = helper_biop(add,$1,$3); } 
+	| summand MINUS factor { $$ = helper_biop(subtract,$1,$3); } 
+
+factor: unary
+	| factor STAR unary { $$ = helper_biop(multiply,$1,$3); } 
+	| factor SLASH unary { $$ = helper_biop(divide,$1,$3); } 
+	| factor DIV unary { $$ = helper_biop(div,$1,$3); } 
+	| factor MOD unary { $$ = helper_biop(mod,$1,$3); } 
+
+unary: term
+	| PLUS unary { $$ = helper_uniop(positive,$2)->rebound($1); }
+	| MINUS unary { $$ = helper_uniop(negative,$2)->rebound($1); }
+	| NOT unary { $$ = helper_uniop(not,$2)->rebound($1); }
+
+term: NUMBER
 	| lvalue
 	| LPAREN expression RPAREN { $$ = helper_uniop(brackets,$2)->rebound($1)->rebound($3); }
-	// Unary ops
-	| PLUS expression { $$ = helper_uniop(positive,$2)->rebound($1); }
-	| MINUS expression { $$ = helper_uniop(negative,$2)->rebound($1); }
-	| NOT expression { $$ = helper_uniop(not,$2)->rebound($1); }
-	// Binary ops
-	| expression PLUS expression  { $$ = helper_biop(add,$1,$3); }
-	| expression MINUS expression  { $$ = helper_biop(subtract,$1,$3); }
-	| expression STAR expression  { $$ = helper_biop(multiply,$1,$3); }
-	| expression SLASH expression  { $$ = helper_biop(divide,$1,$3); }
 	| ID actual_params { $$ = helper_biop(function_call,$1,$2); }
 	| ID comp_values { $$ = helper_biop(record_construction,$1,$2); }
 	| ID array_values { $$ = helper_biop(array_construction,$1,$2); }
-	// Todo: More to be added
-	// Todo: Priority
+	| TRUE { $$ = $1; }
+	| FALSE { $$ = $1; }
+	| NIL { $$ = $1; }
 	;
 
 lvalue: ID

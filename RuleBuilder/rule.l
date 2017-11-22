@@ -109,6 +109,9 @@ WS			[ \t]+
 "OF"        			YIELD commit_token(OF);
 "DIV"       			YIELD commit_token(DIV);
 "MOD"       			YIELD commit_token(MOD);
+"TRUE"        			YIELD commit_token(TRUE);
+"FALSE"       			YIELD commit_token(FALSE);
+"NIL"       			YIELD commit_token(NIL);
 "("						YIELD commit_token(LPAREN);
 ")"						YIELD commit_token(RPAREN);
 "["						YIELD commit_token(LBRACKET);
@@ -146,6 +149,7 @@ WS			[ \t]+
 <SEG_COMMENT>"*)"		BEGIN(INITIAL);
 <SEG_COMMENT><<EOF>>	invalid_token("UNTERMINATED COMMENT"),BEGIN(INITIAL);
 <SEG_COMMENT>.			/* skip content in comment */
-<INITIAL,SEG_COMMENT>\n	YIELD commit_token(EOL); // Just test
+<INITIAL,SEG_COMMENT>\n	//YIELD commit_token(EOL); // Just test
+<INITIAL><<EOF>>		YIELD commit_token(EOFT); 
 .						YIELD sprintf(error_info_buffer,"\\x%02x",*yytext),invalid_token("UNIDENTIFIED CHARACTER",error_info_buffer);
 %%
