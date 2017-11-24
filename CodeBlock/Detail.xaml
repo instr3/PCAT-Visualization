@@ -12,8 +12,8 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <StackPanel Name="BigStackPanel" Orientation="Vertical"/>
+            <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
         </ScrollViewer>
-        <Button Content="Change" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0"/>
+        <Button Name="btn" Content="Change" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0"/>
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,24 +25,13 @@ namespace CodeBlock
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        List<List<string>> NaiveTokenMaker(string input)
-        {
-            List<List<string>> res = new List<List<string>>();
-            foreach (var line in Regex.Split(input, "\r\n"))
-            {
-                List<string> l = new List<string>();
-                foreach (Match m in Regex.Matches(line, @"\s+|\S+"))
-                    l.Add(m.Value);
-                res.Add(l);
-            }
-            return res;
+            if (File.Exists("test17-space.pcat"))
+                InputTextBox.Text = File.ReadAllText("test17-space.pcat");
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Detail d = new Detail(NaiveTokenMaker(InputTextBox.Text));
+            Detail d = new Detail(InputTextBox.Text);
             d.ShowDialog();
         }
     }
