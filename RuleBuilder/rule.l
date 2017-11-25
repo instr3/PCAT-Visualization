@@ -15,10 +15,10 @@ char error_info_buffer[1024];
 
 #ifdef USER_BISON // Bison mode
 #define commit_token(type_macro, ...) (new_token(type_macro, #type_macro, ##__VA_ARGS__),type_macro)
-#define YIELD return ((void *)0), 
+#define YIELD return ((void)0), 
 #else // Flex mode
 #define commit_token(type_macro, ...) new_token(type_macro, #type_macro, ##__VA_ARGS__)
-#define YIELD ((void *)0), 
+#define YIELD ((void)0), 
 #endif
 
 

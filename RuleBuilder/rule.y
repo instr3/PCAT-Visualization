@@ -66,7 +66,7 @@ node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=
 calc:
 	| calc statement EOL { cout << "Statement, root = " << $2->id << endl; }
 	| calc expression EOL { cout << "Expression, root = " << $2->id << endl; }
-	| calc program EOFT { cout << "Program, root = " << $2->id << endl; }
+	| calc program EOFT { cout << "Program, root = " << $2->id << endl; extern node_t *syntax_root; syntax_root = $2; return 0;}
 	;
 
 program: PROGRAM IS body SEMICOLON { $$ = helper_uniop(program,$3)->rebound($1)->rebound($4); }
