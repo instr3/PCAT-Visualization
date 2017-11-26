@@ -176,7 +176,8 @@ namespace CodeBlock
                         };
                         //tb.Background = colorlist[rnd.Next() % colorlist.Count];
                         //tb.Background = colorlist[rand];
-                        tb.MouseMove += TextBlock_MouseMove;
+                        if (!allspace)
+                            tb.MouseMove += TextBlock_MouseMove;
                         rand = (rand + 1) % colorlist.Count;
                         ltb.Add(tb);
                         sp.Children.Add(tb);
