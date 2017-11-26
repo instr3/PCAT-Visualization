@@ -18,13 +18,25 @@ int main(int argc, char* args[]) {
 			yyin = file;
 		}
 	}
-	FILE *file = fopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\tutorial\\Compiler_Project-master\\tests\\test17-space.pcat", "r");
-	yyin = file;
-	printf("%d\n", yyparse());
-	visualize_syntax_tree();
-	freopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\Debug\\test17-space.out", "w",stdout);
-	
-	output_syntax_tree();
-	while (1);
+	bool as_interface = false;
+	if (argc > 2)
+	{
+		if (strcmp(args[2], "-i") == 0)
+			as_interface = true;
+	}
+	// FILE *file = fopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\tutorial\\Compiler_Project-master\\tests\\test17-space.pcat", "r");
+	// yyin = file;
+	if (0 == yyparse())
+	{
+		if(as_interface)
+			output_syntax_tree();
+		else
+		{
+			printf("Compile Successful\n");
+			visualize_syntax_tree();
+		}
+	}
+	// freopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\Debug\\test17-space.out", "w",stdout);
+	// output_syntax_tree();
 	return 0;
 }

@@ -31,7 +31,7 @@ namespace CodeBlock
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Detail d = new Detail(InputTextBox.Text);
+            Detail d = new Detail(InputTextBox.Text.Replace("\t", "    ").Replace("\r",""));
             d.ShowDialog();
         }
     }

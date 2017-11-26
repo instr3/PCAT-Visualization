@@ -1,5 +1,10 @@
 #pragma once
 
+struct offset_t
+{
+	int line, col, pos;
+};
+
 struct node_t
 {
 	int id;

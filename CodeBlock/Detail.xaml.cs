@@ -45,6 +45,7 @@ namespace CodeBlock
             public int OneLineRight { get; set; }
             public int TypeMacro { get; set; }
             public string TypeName { get; set; }
+            public int ChildrenCount { get; set; }
         };
 
         class RenderLayer
@@ -85,11 +86,19 @@ namespace CodeBlock
                 linenum为-1，此为跨行节点，left到right行
                 否则不跨行，linenum行第left到right的token
             */
-            var input = File.ReadAllLines("test17-space.out");
+            string []input;
+            try
+            {
+                input = CompilerInvoker.Compile(code).Replace("\r", "").Split('\n').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            }
+            catch
+            {
+                throw;
+            }
             TotalNodeNum = Convert.ToInt32(input[0]);
             nodes = new List<OneNode>();
             for (int i = TotalNodeNum; i > 0; i--)
-                nodes.Add(new OneNode() { Father = -1 });
+                nodes.Add(new OneNode() { Father = -1, FatherLinkType="root" });
             List<ImportantPos> poslist = new List<ImportantPos>();
             for (int i = 1; i < input.Length; i++)
             {
@@ -115,6 +124,7 @@ namespace CodeBlock
                 poslist.Add(ipstart);
                 poslist.Add(ipend);
                 int childnum = Convert.ToInt32(part[5]);
+                nodes[nowid].ChildrenCount = childnum;
                 for (; childnum > 0; childnum--)
                 {
                     int childid = Convert.ToInt32(part[nowpartpos++]);
@@ -264,7 +274,7 @@ namespace CodeBlock
             {
                 nowcolor += delta;
                 Color c = colorScheme[(chain.Count - 1 - i) % colorScheme.Length];
-                currentRenderLayers.Add(new RenderLayer(c, nodes[chain[i]].TypeName));
+                currentRenderLayers.Add(new RenderLayer(c, string.Format("<{0}> {1} ({2} Children)", nodes[chain[i]].FatherLinkType, nodes[chain[i]].TypeName, nodes[chain[i]].ChildrenCount)));
                 //c.A = c.R = 255;
                 //c.B = c.G = (byte)(255 - nowcolor);
                 Brush brush = new SolidColorBrush(c);

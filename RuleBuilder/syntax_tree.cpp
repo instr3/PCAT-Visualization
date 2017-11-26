@@ -34,11 +34,11 @@ node_t *create_node(int type_macro, const char *type_name, int offset, int lengt
 		syntax_tree[n].link_names[tid++] = result;
 		result = strtok(NULL, "$");
 	} while (result);
-	if(length == -1)
+	/* if(length == -1)
 		printf("[Node #%d](%d:%s)Children: %d\n", n, type_macro, type_name, child_count);
 	else
 		printf("[Node #%d](%d:%s)Pos: <%d,%d> Children: %d\n", n, type_macro, type_name, offset, length, child_count);
-	// delete[]temp;
+	*/
 	return &syntax_tree[n];
 }
 
@@ -62,7 +62,7 @@ node_t * node_t::append(node_t * child, const char * link_name, bool selective)
 		link_name = link_names[nc];
 	}
 	link_names[nc] = link_name;
-	printf("[Link #%d -> #%d]%s\n", id, child->id, link_name);
+	// printf("[Link #%d -> #%d]%s\n", id, child->id, link_name);
 	rebound(child);
 	return this;
 }

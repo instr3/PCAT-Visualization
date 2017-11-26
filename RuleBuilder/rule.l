@@ -4,10 +4,7 @@
 #define MAX_STRING_BUFFER 255
 #define MAX_ID_LEN 255
 
-struct offset_t
-{
-	int line,col,pos;
-}current_offset={}, token_offset={};
+struct offset_t current_offset={}, token_offset={};
 char string_buffer[MAX_STRING_BUFFER+2]; int p_string_buffer;
 char error_info_buffer[1024];
 

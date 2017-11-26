@@ -7,10 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="652.174" Width="865.218" FontSize="20">
     <Grid Margin="10">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="500*"/>
-            <ColumnDefinition Width="500*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
