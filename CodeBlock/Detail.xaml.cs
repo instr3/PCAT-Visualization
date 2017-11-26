@@ -50,10 +50,12 @@ namespace CodeBlock
 
         class RenderLayer
         {
+            public Thickness Margin { get; private set; }
             public Brush Color { get; private set; }
             public string Text { get; private set; }
-            public RenderLayer(Color inputColor, string inputText)
+            public RenderLayer(int depth, Color inputColor, string inputText)
             {
+                Margin = new Thickness(depth * 15, 2, 5, 2);
                 Color = new SolidColorBrush(inputColor);
                 Text = inputText;
             }
@@ -64,10 +66,15 @@ namespace CodeBlock
         List<StackPanel> smallstackpanels = new List<StackPanel>();
         List<List<TextBlock>> textblocks = new List<List<TextBlock>>();
         int TotalNodeNum { get; set; }
+        string[] TreeOutput { get; set; }
+        string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFF5CC", "#FFFFCC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
+        Color[] colorScheme;
+
         public Detail(string code)
         {
             InitializeComponent();
             resultView.ItemsSource = currentRenderLayers;
+            colorScheme = colorNames.Select(s => (Color)ColorConverter.ConvertFromString(s)).ToArray();
             colorlist = new List<Brush>
             {
                 Brushes.Green,
@@ -90,6 +97,8 @@ namespace CodeBlock
             try
             {
                 input = CompilerInvoker.Compile(code).Replace("\r", "").Split('\n').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+                TreeOutput = CompilerInvoker.Compile(code, true).Replace("\r", "").Split('\n').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
             }
             catch
             {
@@ -267,14 +276,12 @@ namespace CodeBlock
             double nowcolor = 0;
             StackPanel nowfathersp = BigStackPanel;
             int codelineleft = 0, codelineright = smallstackpanels.Count, movedspaces = 0;
-            string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFF5CC", "#FFFFCC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
-            Color[] colorScheme = colorNames.Select(s => (Color)ColorConverter.ConvertFromString(s)).ToArray();
             currentRenderLayers.Clear();
             for (int i = chain.Count - 1; i >= 0; i--)
             {
                 nowcolor += delta;
                 Color c = colorScheme[(chain.Count - 1 - i) % colorScheme.Length];
-                currentRenderLayers.Add(new RenderLayer(c, string.Format("<{0}> {1} ({2} Children)", nodes[chain[i]].FatherLinkType, nodes[chain[i]].TypeName, nodes[chain[i]].ChildrenCount)));
+                currentRenderLayers.Add(new RenderLayer(chain.Count - 1 - i, c, string.Format("<{0}> {1} ({2} Children)", nodes[chain[i]].FatherLinkType, nodes[chain[i]].TypeName, nodes[chain[i]].ChildrenCount)));
                 //c.A = c.R = 255;
                 //c.B = c.G = (byte)(255 - nowcolor);
                 Brush brush = new SolidColorBrush(c);
@@ -407,12 +414,23 @@ namespace CodeBlock
                 foreach (var i in line)
                     i.Background = l[r.Next() % 3];
             */
-            foreach (var l in textblocks)
+            /*foreach (var l in textblocks)
                 foreach (var tb in l)
                     if (Regex.IsMatch(tb.Text, @"^\s*$"))
                         if (tb.Visibility == Visibility.Collapsed)
                             tb.Visibility = Visibility.Visible;
-                        else tb.Visibility = Visibility.Collapsed;
+                        else tb.Visibility = Visibility.Collapsed;*/
+            VisualizeTreeOutput();
+        }
+        private void VisualizeTreeOutput()
+        {
+            currentRenderLayers.Clear();
+            foreach(string s in TreeOutput)
+            {
+                int depthCount = s.TakeWhile(Char.IsWhiteSpace).Count();
+                Color c = colorScheme[depthCount % colorScheme.Length];
+                currentRenderLayers.Add(new RenderLayer(depthCount, c, s.Substring(depthCount)));
+            }
         }
     }
 }

@@ -19,10 +19,13 @@ int main(int argc, char* args[]) {
 		}
 	}
 	bool as_interface = false;
+	bool as_tree = false;
 	if (argc > 2)
 	{
 		if (strcmp(args[2], "-i") == 0)
 			as_interface = true;
+		else if (strcmp(args[2], "-t") == 0)
+			as_tree = true;
 	}
 	// FILE *file = fopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\tutorial\\Compiler_Project-master\\tests\\test17-space.pcat", "r");
 	// yyin = file;
@@ -30,6 +33,8 @@ int main(int argc, char* args[]) {
 	{
 		if(as_interface)
 			output_syntax_tree();
+		else if(as_tree)
+			visualize_syntax_tree();
 		else
 		{
 			printf("Compile Successful\n");

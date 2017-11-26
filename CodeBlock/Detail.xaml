@@ -18,12 +18,12 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.ColumnSpan="1">
             <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
         </ScrollViewer>
-        <Button Name="btn" Content="Change" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
+        <Button Name="btn" Content="Show Whole Tree" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
         <ListBox Name="resultView" Grid.Column="1" HorizontalAlignment="Left" Height="529" Margin="10,10,0,0" VerticalAlignment="Top" Width="621" Grid.RowSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="0,2,5,2" />
+                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="{Binding Margin}" />
                         <TextBlock Text="{Binding Text}" />
                     </StackPanel>
                 </DataTemplate>
