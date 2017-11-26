@@ -27,7 +27,7 @@ int main(int argc, char* args[]) {
 		else if (strcmp(args[2], "-t") == 0)
 			as_tree = true;
 	}
-	// FILE *file = fopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\tutorial\\Compiler_Project-master\\tests\\test17-space.pcat", "r");
+	// FILE *file = fopen("C:\\Users\\jjy\\Documents\\2jjy\\Programming\\CSharp\\TejiLang-Toy\\tutorial\\Compiler_Project-master\\tests\\test08.pcat", "r");
 	// yyin = file;
 	if (0 == yyparse())
 	{

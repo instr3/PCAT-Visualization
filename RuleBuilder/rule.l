@@ -19,18 +19,21 @@ char error_info_buffer[1024];
 #endif
 
 
-void new_token(int type_macro, const char *type, char *token=0)
+void new_token(int type_macro, const char *type, char *token=0, int token_additional_length=0)
 {
 	if(!token)
 		token=yytext;
 	int offset_col=token_offset.col;
 	int offset_line=token_offset.line;
 	int offset_pos=token_offset.pos;
+	if(offset_col>=token_additional_length)
+		offset_col-=token_additional_length;
+	offset_pos-=token_additional_length;
 #ifndef USER_BISON
 	printf("[New %s] @ line %d, col %d%s%s\n", type, offset_line+1, offset_col+1, *token?": ":"", token);
 #else
 	if(type_macro!=IGNORED)
-		yylval.id = create_node(type_macro, type, offset_pos, strlen(yytext), 0);
+		yylval.id = create_node(type_macro, type, offset_pos, strlen(yytext)+token_additional_length, 0);
 #endif
 }
 int invalid_token(const char *text, char *token=0)
@@ -137,7 +140,7 @@ WS			[ \t]+
 {INTEGER}				YIELD strtoll(yytext,0,10)>2147483647 ? invalid_token("TOO BIG INTEGER"): commit_token(NUMBER);
 {REAL}					YIELD commit_token(NUMBER);
 \"						p_string_buffer=0,BEGIN(SEG_STRING);
-<SEG_STRING>\"			YIELD string_buffer[p_string_buffer]=0,BEGIN(INITIAL),p_string_buffer<=MAX_STRING_BUFFER?(token_offset.col-=p_string_buffer+1,commit_token(STRING, string_buffer)):invalid_token("TOO LONG STRING", string_buffer);
+<SEG_STRING>\"			YIELD string_buffer[p_string_buffer]=0,BEGIN(INITIAL),p_string_buffer<=MAX_STRING_BUFFER?(token_offset.col-=p_string_buffer+1,commit_token(STRING, string_buffer, p_string_buffer+1)):invalid_token("TOO LONG STRING", string_buffer);
 <SEG_STRING>\n			|
 <SEG_STRING><<EOF>>		YIELD string_buffer[p_string_buffer]=0,BEGIN(INITIAL),invalid_token("UNBALANCED QUOTES", string_buffer);
 <SEG_STRING>[[:print:]]	if(p_string_buffer<MAX_STRING_BUFFER+1) string_buffer[p_string_buffer++]=yytext[0];

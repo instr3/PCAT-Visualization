@@ -67,7 +67,7 @@ namespace CodeBlock
         List<List<TextBlock>> textblocks = new List<List<TextBlock>>();
         int TotalNodeNum { get; set; }
         string[] TreeOutput { get; set; }
-        string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFF5CC", "#FFFFCC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
+        string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFFFCC", "#FFF5CC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
         Color[] colorScheme;
 
         public Detail(string code)

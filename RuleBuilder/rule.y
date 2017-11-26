@@ -71,17 +71,17 @@ calc:
 	| calc program EOFT { extern node_t *syntax_root; syntax_root = $2; return 0;}
 	;
 
-program: PROGRAM IS body SEMICOLON { $$ = helper_uniop(program,$3)->rebound($1)->rebound($4); }
+program: PROGRAM IS body SEMICOLON { $$ = helper_uniop(program#program_body,$3)->rebound($1)->rebound($4); }
 
-body: declaration_list BEGINT statement_list END {$$=helper_biop(body,$1,$3)->rebound($4);}
+body: declaration_list BEGINT statement_list END {$$=helper_biop(body#declarations#process,$1,$3)->rebound($4);}
+	| BEGINT statement_list END {$$=helper_uniop(body#process,$2)->rebound($1)->rebound($3);}
 
 declaration_list: declaration_list_suffix {$$=extract_id_list("declaration_list",$1);}
 
 declaration_list_suffix: declaration {$$=new vector<node_t *>();$$->push_back($1);}
 	| declaration_list_suffix declaration {$$=$1;$$->push_back($2);}
 
-declaration:
-	| VAR var_decl_list {$$ = $2->rebound($1);}
+declaration: VAR var_decl_list {$$ = $2->rebound($1);}
 	| TYPE type_decl_list {$$ = $2->rebound($1);}
 	| PROCEDURE procedure_decl_list {$$ = $2->rebound($1);}
 
@@ -90,34 +90,34 @@ var_decl_list: var_decl_list_suffix {$$=extract_id_list("var_decl_list",$1);}
 var_decl_list_suffix: var_decl {$$=new vector<node_t *>();$$->push_back($1);}
 	| var_decl_list_suffix var_decl {$$=$1;$$->push_back($2);}
 
-var_decl: id_list ASSIGN expression SEMICOLON {$$ = helper_biop(var_decl,$1,$3)->rebound($4);}
-	| id_list COLON type ASSIGN expression SEMICOLON {$$ = helper_triop(var_decl,$1,$3,$5)->rebound($6);}
+var_decl: id_list ASSIGN expression SEMICOLON {$$ = helper_biop(var_decl#var_names#init_value,$1,$3)->rebound($4);}
+	| id_list COLON type ASSIGN expression SEMICOLON {$$ = helper_triop(var_decl#var_names#var_type#init_value,$1,$3,$5)->rebound($6);}
 
 type_decl_list: type_decl_list_suffix {$$=extract_id_list("type_decl_list",$1);}
 
 type_decl_list_suffix: type_decl {$$=new vector<node_t *>();$$->push_back($1);}
 	| type_decl_list_suffix type_decl {$$=$1;$$->push_back($2);}
 
-type_decl: ID IS type SEMICOLON {$$ = helper_biop(type_decl,$1,$3)->rebound($4);}
+type_decl: ID IS type SEMICOLON {$$ = helper_biop(type_decl#id#type_name,$1,$3)->rebound($4);}
 
 procedure_decl_list: procedure_decl_list_suffix {$$=extract_id_list("procedure_decl_list",$1);}
 
 procedure_decl_list_suffix: procedure_decl {$$=new vector<node_t *>();$$->push_back($1);}
 	| procedure_decl_list_suffix procedure_decl {$$=$1;$$->push_back($2);}
 
-procedure_decl: ID formal_params IS body SEMICOLON {$$ = helper_triop(procedure_decl,$1,$2,$4)->rebound($5);}
-	| ID formal_params COLON type IS body SEMICOLON {$$ = helper_quadop(procedure_decl,$1,$2,$4,$6)->rebound($7);}
+procedure_decl: ID formal_params IS body SEMICOLON {$$ = helper_triop(procedure_decl#procedure_name#parameter_list#procedure_body,$1,$2,$4)->rebound($5);}
+	| ID formal_params COLON type IS body SEMICOLON {$$ = helper_quadop(procedure_decl#function_name#parameter_list#return_type#procedure_body,$1,$2,$4,$6)->rebound($7);}
 
 type: ID
-	| ARRAY OF type {$$ = helper_uniop(brackets,$3)->rebound($1);}
-	| RECORD component_list END {$$ = helper_uniop(record_components,$2)->rebound($1)->rebound($3);}
+	| ARRAY OF type {$$ = helper_uniop(array_type#array_type,$3)->rebound($1);}
+	| RECORD component_list END {$$ = helper_uniop(record_components#recorded_components,$2)->rebound($1)->rebound($3);}
 
 component_list: component_list_suffix {$$=extract_id_list("component_list",$1);}
 
 component_list_suffix: component {$$=new vector<node_t *>();$$->push_back($1);}
 	| component_list_suffix component {$$=$1;$$->push_back($2);}
 
-component: ID COLON type SEMICOLON {$$ = helper_biop(component,$1,$3)->rebound($4);}
+component: ID COLON type SEMICOLON {$$ = helper_biop(component#component_id#component_type,$1,$3)->rebound($4);}
 
 formal_params: LPAREN RPAREN {$$ = create_virtual_node("formal_params",0)->rebound($1)->rebound($2);} // 0 fp_section situation
 	| formal_params_suffix RPAREN {$$=extract_id_list("formal_params",$1,$2);}
@@ -125,7 +125,7 @@ formal_params: LPAREN RPAREN {$$ = create_virtual_node("formal_params",0)->rebou
 formal_params_suffix: LPAREN fp_section {$$=new vector<node_t *>();$$->push_back($1);$$->push_back($2);} // An extra '(' is included to calculate bounds
 	| formal_params_suffix SEMICOLON fp_section {$$=$1;$$->push_back($3);}
 
-fp_section: id_list COLON type {$$ = helper_biop(fp_section,$1,$3);}
+fp_section: id_list COLON type {$$ = helper_biop(fp_section#parameter_name#parameter_type,$1,$3);}
 
 id_list: id_list_suffix {$$=extract_id_list("id_list",$1);}
 
@@ -147,22 +147,22 @@ elsif_sentence_list: elsif_sentence_list_suffix {$$=extract_id_list("elsif_sente
 elsif_sentence_list_suffix: elsif_sentence {$$=new vector<node_t *>();$$->push_back($1);}
 	| elsif_sentence_list_suffix elsif_sentence {$$=$1;$$->push_back($2);}
 
-elsif_sentence: ELSIF expression THEN statement_list { $$ = helper_biop(elsif_sentence,$2,$4)->rebound($1); }
+elsif_sentence: ELSIF expression THEN statement_list { $$ = helper_biop(elsif_sentence#elsif_condition#elsif_true_part,$2,$4)->rebound($1); }
 
-statement: lvalue ASSIGN expression SEMICOLON { $$ = helper_biop(assign,$1,$3)->rebound($4); }
-	| ID actual_params SEMICOLON { $$ = helper_biop(procedure_call,$1,$2)->rebound($3); }
-	| READ LPAREN lvalue_list RPAREN SEMICOLON { $$ = helper_uniop(read,$3)->rebound($1)->rebound($5); }
-	| WRITE write_params SEMICOLON { $$ = helper_uniop(write,$2)->rebound($1)->rebound($3); }
-	| IF expression THEN statement_list END SEMICOLON { $$ = helper_biop(if,$2,$4)->rebound($1)->rebound($6); }
-	| IF expression THEN statement_list elsif_sentence_list END SEMICOLON { $$ = helper_triop(if,$2,$4,$5)->rebound($1)->rebound($7); }
-	| IF expression THEN statement_list ELSE statement_list END SEMICOLON { $$ = helper_triop(if_else,$2,$4,$6)->rebound($1)->rebound($8); }
-	| IF expression THEN statement_list elsif_sentence_list ELSE statement_list END SEMICOLON { $$ = helper_quadop(if_else,$2,$4,$5,$7)->rebound($1)->rebound($9); }
-	| WHILE expression DO statement_list END SEMICOLON { $$ = helper_biop(while,$2,$4)->rebound($1)->rebound($6); }
-	| LOOP statement_list END SEMICOLON { $$ = helper_uniop(write,$2)->rebound($1)->rebound($4); }
-	| FOR ID ASSIGN expression TO expression DO statement_list END SEMICOLON { $$ = helper_quadop(while,$2,$4,$6,$8)->rebound($1)->rebound($10); }
-	| FOR ID ASSIGN expression TO expression BY expression DO statement_list END SEMICOLON { $$ = helper_quinop(while,$2,$4,$6,$8,$10)->rebound($1)->rebound($12); }
+statement: lvalue ASSIGN expression SEMICOLON { $$ = helper_biop(assign#l_value#r_value,$1,$3)->rebound($4); }
+	| ID actual_params SEMICOLON { $$ = helper_biop(procedure_call#procedure_name#parameter_list,$1,$2)->rebound($3); }
+	| READ LPAREN lvalue_list RPAREN SEMICOLON { $$ = helper_uniop(read#things_to_read,$3)->rebound($1)->rebound($5); }
+	| WRITE write_params SEMICOLON { $$ = helper_uniop(write#things_to_write,$2)->rebound($1)->rebound($3); }
+	| IF expression THEN statement_list END SEMICOLON { $$ = helper_biop(if#if_condition#if_true_part,$2,$4)->rebound($1)->rebound($6); }
+	| IF expression THEN statement_list elsif_sentence_list END SEMICOLON { $$ = helper_triop(if#if_condition#if_true_part#elsif_part,$2,$4,$5)->rebound($1)->rebound($7); }
+	| IF expression THEN statement_list ELSE statement_list END SEMICOLON { $$ = helper_triop(if_else#if_condition#if_true_part#else_part,$2,$4,$6)->rebound($1)->rebound($8); }
+	| IF expression THEN statement_list elsif_sentence_list ELSE statement_list END SEMICOLON { $$ = helper_quadop(if_else#if_condition#if_true_part#elsif_part#else_part,$2,$4,$5,$7)->rebound($1)->rebound($9); }
+	| WHILE expression DO statement_list END SEMICOLON { $$ = helper_biop(while#while_condition#loop_statements,$2,$4)->rebound($1)->rebound($6); }
+	| LOOP statement_list END SEMICOLON { $$ = helper_uniop(loop#loop_statements,$2)->rebound($1)->rebound($4); }
+	| FOR ID ASSIGN expression TO expression DO statement_list END SEMICOLON { $$ = helper_quadop(for#loop_variable#loop_init_value#loop_end_value#loop_statements,$2,$4,$6,$8)->rebound($1)->rebound($10); }
+	| FOR ID ASSIGN expression TO expression BY expression DO statement_list END SEMICOLON { $$ = helper_quinop(for#loop_variable#loop_init_value#loop_end_value#loop_step_size#loop_statements,$2,$4,$6,$8,$10)->rebound($1)->rebound($12); }
 	| EXIT SEMICOLON { $$ = create_virtual_node("exit",0)->rebound($1)->rebound($2); }
-	| RETURN expression SEMICOLON { $$ = helper_uniop(return,$2)->rebound($1)->rebound($3); }
+	| RETURN expression SEMICOLON { $$ = helper_uniop(return#return_value,$2)->rebound($1)->rebound($3); }
 	// Todo: Add more
 
 write_params: LPAREN RPAREN {$$ = create_virtual_node("write_params",0)->rebound($1)->rebound($2);} // 0 parameter situation
@@ -177,18 +177,18 @@ write_expr: STRING
 expression: or_operand
 
 or_operand: and_operand
-	| or_operand OR and_operand { $$ = helper_biop(or,$1,$3); }
+	| or_operand OR and_operand { $$ = helper_biop(logical_or,$1,$3); }
 
 and_operand: relationship
-	| and_operand AND relationship { $$ = helper_biop(and,$1,$3); }
+	| and_operand AND relationship { $$ = helper_biop(logical_and,$1,$3); }
 
 relationship: summand
-	| summand LT summand { $$ = helper_biop(lt,$1,$3); }
-	| summand GT summand { $$ = helper_biop(gt,$1,$3); }
-	| summand LE summand { $$ = helper_biop(le,$1,$3); }
-	| summand GE summand { $$ = helper_biop(ge,$1,$3); }
-	| summand EQ summand { $$ = helper_biop(eq,$1,$3); }
-	| summand NEQ summand { $$ = helper_biop(neq,$1,$3); }
+	| summand LT summand { $$ = helper_biop(less_than,$1,$3); }
+	| summand GT summand { $$ = helper_biop(greater_than,$1,$3); }
+	| summand LE summand { $$ = helper_biop(less_equal,$1,$3); }
+	| summand GE summand { $$ = helper_biop(greater_equal,$1,$3); }
+	| summand EQ summand { $$ = helper_biop(equal,$1,$3); }
+	| summand NEQ summand { $$ = helper_biop(not_equal,$1,$3); }
 
 summand: factor
 	| summand PLUS factor { $$ = helper_biop(add,$1,$3); } 
@@ -203,7 +203,7 @@ factor: unary
 unary: term
 	| PLUS unary { $$ = helper_uniop(positive,$2)->rebound($1); }
 	| MINUS unary { $$ = helper_uniop(negative,$2)->rebound($1); }
-	| NOT unary { $$ = helper_uniop(not,$2)->rebound($1); }
+	| NOT unary { $$ = helper_uniop(logical_not,$2)->rebound($1); }
 
 term: NUMBER
 	| lvalue
@@ -217,8 +217,8 @@ term: NUMBER
 	;
 
 lvalue: ID
-	| lvalue LBRACKET expression RBRACKET { $$ = helper_biop(element_deref,$1,$3)->rebound($4); }
-	| lvalue DOT ID { $$ = helper_biop(comp_deref,$1,$3); }
+	| lvalue LBRACKET expression RBRACKET { $$ = helper_biop(element_deref#array_name#array_index,$1,$3)->rebound($4); }
+	| lvalue DOT ID { $$ = helper_biop(comp_deref#comp_name#comp_index,$1,$3); }
 	;
 actual_params: LPAREN RPAREN {$$ = create_virtual_node("actual_params",0)->rebound($1)->rebound($2);} // 0 parameter situation
 	| actual_params_suffix RPAREN {$$=extract_id_list("actual_params",$1,$2);}
@@ -231,7 +231,7 @@ comp_values: comp_values_suffix RBRACE {$$=extract_id_list("comp_values",$1,$2);
 comp_values_suffix: LBRACE comp_value {$$=new vector<node_t *>();$$->push_back($1);$$->push_back($2);} // An extra '{' is included to calculate bounds
 	| comp_values_suffix SEMICOLON comp_value {$$=$1;$$->push_back($3);}
 
-comp_value: ID ASSIGN expression {$$=helper_biop(comp_value_pair,$1,$3);}
+comp_value: ID ASSIGN expression {$$=helper_biop(comp_value_pair#l_value#r_value,$1,$3);}
 
 array_values: array_values_suffix RABRACKET {$$=extract_id_list("array_values",$1,$2);}
 
@@ -240,17 +240,6 @@ array_values_suffix: LABRACKET array_value {$$=new vector<node_t *>();$$->push_b
 
 
 array_value: expression
-	| expression OF expression {$$=helper_biop(array_value_pair,$1,$3);}
+	| expression OF expression {$$=helper_biop(array_value_pair#elements_count#elements_value,$1,$3);}
 
-/*exp: factor
-  | exp PLUS factor { $$ = helper_biop(PLUS,$1,$3); }
-  | exp MINUS factor { $$ = helper_biop(MINUS,$1,$3); }
-  ;
-factor: term
-  | factor STAR term { $$ = helper_biop(MULTIPLY,$1,$3);  }
-  | factor SLASH term { $$ = helper_biop(DIVIDE,$1,$3); }
-  ;
-term: NUMBER
-  | LPAREN exp RPAREN { $$ = helper_uniop(BRACKETS,$2)->rebound($1)->rebound($3); }
-  ;*/
 %%
