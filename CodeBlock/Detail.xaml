@@ -5,15 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CodeBlock"
         mc:Ignorable="d"
-        Title="Detail" Height="600" Width="800" FontSize="20">
+        Title="Detail" Height="600" Width="1310.145" FontSize="20">
     <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200*"/>
+            <ColumnDefinition Width="200*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.ColumnSpan="1">
             <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
         </ScrollViewer>
-        <Button Name="btn" Content="Change" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0"/>
+        <Button Name="btn" Content="Change" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
+        <ListBox Name="resultView" Grid.Column="1" HorizontalAlignment="Left" Height="529" Margin="10,10,0,0" VerticalAlignment="Top" Width="621" Grid.RowSpan="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="0,2,5,2" />
+                        <TextBlock Text="{Binding Text}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Window>

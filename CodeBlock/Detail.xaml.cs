@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,6 +46,18 @@ namespace CodeBlock
             public int TypeMacro { get; set; }
             public string TypeName { get; set; }
         };
+
+        class RenderLayer
+        {
+            public Brush Color { get; private set; }
+            public string Text { get; private set; }
+            public RenderLayer(Color inputColor, string inputText)
+            {
+                Color = new SolidColorBrush(inputColor);
+                Text = inputText;
+            }
+        }
+        ObservableCollection<RenderLayer> currentRenderLayers = new ObservableCollection<RenderLayer>();
         List<OneNode> nodes;
 
         List<StackPanel> smallstackpanels = new List<StackPanel>();
@@ -52,7 +66,7 @@ namespace CodeBlock
         public Detail(string code)
         {
             InitializeComponent();
-            
+            resultView.ItemsSource = currentRenderLayers;
             colorlist = new List<Brush>
             {
                 Brushes.Green,
@@ -242,12 +256,16 @@ namespace CodeBlock
             double nowcolor = 0;
             StackPanel nowfathersp = BigStackPanel;
             int codelineleft = 0, codelineright = smallstackpanels.Count, movedspaces = 0;
+            string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFF5CC", "#FFFFCC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
+            Color[] colorScheme = colorNames.Select(s => (Color)ColorConverter.ConvertFromString(s)).ToArray();
+            currentRenderLayers.Clear();
             for (int i = chain.Count - 1; i >= 0; i--)
             {
                 nowcolor += delta;
-                Color c = new Color();
-                c.A = c.R = 255;
-                c.B = c.G = (byte)(255 - nowcolor);
+                Color c = colorScheme[(chain.Count - 1 - i) % colorScheme.Length];
+                currentRenderLayers.Add(new RenderLayer(c, nodes[chain[i]].TypeName));
+                //c.A = c.R = 255;
+                //c.B = c.G = (byte)(255 - nowcolor);
                 Brush brush = new SolidColorBrush(c);
                 /*MouseMoveList[chain[i]] = MouseMoveTimes;
                 foreach (var list in textblocks)
