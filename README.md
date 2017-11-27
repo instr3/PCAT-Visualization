@@ -1,4 +1,4 @@
-# TejiLang-Toy
+# PCAT-Visualization
 2017秋季编译课程项目，采用flex+bison工具并使用.NET开发一个简单语言的语法分析工具。
 
 ## How to build
@@ -22,6 +22,3 @@
 3. 调试器，单步执行，在编辑器内反馈结果；
 4. 变量追踪，断点设置，等等。
 
-## 小组成员
-
-TBD.
