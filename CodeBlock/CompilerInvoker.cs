@@ -12,7 +12,7 @@ namespace CodeBlock
 {
     class CompilerInvoker
     {
-        public static string Compile(string src)
+        public static string Compile(string src, bool tree_output=false)
         {
             string fileName = "__temp.pcat";
             string exeName = "RuleBuilder.exe";
@@ -24,7 +24,7 @@ namespace CodeBlock
             {
                 ProcessStartInfo p = new ProcessStartInfo();
                 p.FileName = exeName;
-                p.Arguments = fileName + " -i";
+                p.Arguments = fileName + (tree_output ? " -t" : " -i");
                 p.RedirectStandardOutput = true;
                 p.UseShellExecute = false;
                 process.StartInfo = p;

@@ -12,7 +12,7 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <TextBox Name="InputTextBox" TextWrapping="NoWrap" AcceptsReturn="True" FontFamily="Courier New"/>
+            <TextBox Name="InputTextBox" TextWrapping="NoWrap" AcceptsReturn="True" FontFamily="Courier New" AllowDrop="True" Drop="InputTextBox_Drop" PreviewDragOver="InputTextBox_PreviewDragOver"/>
         </ScrollViewer>
         <Button Click="Button_Click" Grid.Row="1" Content="next"/>
     </Grid>

@@ -9,19 +9,19 @@ using namespace std;
 node_t *syntax_tree = new node_t[MAX_SYNTEX_NODES];
 node_t *syntax_root = NULL;
 int syntax_tree_size = 1;
+const char *delimiter = "#";
 
 node_t *create_node(int type_macro, const char *type_name, int offset, int length, int child_count)
 {
-	
 	int n = syntax_tree_size++;
 	syntax_tree[n].id = n;
 	syntax_tree[n].type_macro = type_macro;
 	char *temp = new char[strlen(type_name) + 1];
 	strcpy(temp, type_name);
-	char *result = strtok(temp, "$");
+	char *result = strtok(temp, delimiter);
 	assert(result);
 	syntax_tree[n].type_name = result;
-	result = strtok(NULL, "$");
+	result = strtok(NULL, delimiter);
 	syntax_tree[n].offset = offset;
 	syntax_tree[n].length = length;
 	syntax_tree[n].child_count = child_count;
@@ -29,11 +29,12 @@ node_t *create_node(int type_macro, const char *type_name, int offset, int lengt
 	syntax_tree[n].children = new node_t*[child_count];
 	syntax_tree[n].link_names = new const char*[child_count]();
 	int tid = 0;
-	do
+	while (result)
 	{
+		assert(tid < syntax_tree[n].child_count);
 		syntax_tree[n].link_names[tid++] = result;
-		result = strtok(NULL, "$");
-	} while (result);
+		result = strtok(NULL, delimiter);
+	}
 	/* if(length == -1)
 		printf("[Node #%d](%d:%s)Children: %d\n", n, type_macro, type_name, child_count);
 	else
@@ -56,6 +57,7 @@ void output_syntax_tree()
 node_t * node_t::append(node_t * child, const char * link_name, bool selective)
 {
 	int nc = assigned_child_count++;
+	assert(nc < child_count);
 	children[nc] = child;
 	if (selective && link_names[nc])
 	{

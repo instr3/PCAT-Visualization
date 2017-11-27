@@ -34,5 +34,31 @@ namespace CodeBlock
             Detail d = new Detail(InputTextBox.Text.Replace("\t", "    ").Replace("\r",""));
             d.ShowDialog();
         }
+
+        private void InputTextBox_Drop(object sender, DragEventArgs e)
+        {
+            var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (fileNames == null) return;
+            var fileName = fileNames.FirstOrDefault();
+            if (fileName == null) return;
+            try
+            {
+                string result = "";
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    result = sr.ReadToEnd();
+                }
+                InputTextBox.Text = result;
+            }
+            catch
+            {
+                MessageBox.Show("Illegal file dropped");
+            }
+        }
+
+        private void InputTextBox_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }
