@@ -84,7 +84,7 @@ namespace CodeBlock
             节点范围跨行，即当做方框型
             树节点数据结构：father, linenum, left, right
                 linenum为-1，此为跨行节点，left到right行
-                否则不跨行，linenum行第left到right的token
+                否则不跨行，linenum行第left列到right列的token
             */
             string []input;
             try
@@ -148,7 +148,7 @@ namespace CodeBlock
                 if (nowpos >= poslist.Count)
                     break;
                 int start = codeposoffset, end = codeposoffset + codeslinesplit[nowcodeline].Length + 1;
-                for (; nowpos < poslist.Count && poslist[nowpos].Pos <= end; nowpos++)
+                for (; nowpos < poslist.Count && poslist[nowpos].Pos < end; nowpos++)
                 {
                     var pos = poslist[nowpos];
                     if (pos.IsStart)
@@ -160,9 +160,9 @@ namespace CodeBlock
                     else
                     {
                         nodes[pos.NodeId].OneLineRight = pos.Pos;
-                        for (int i = nodes[pos.NodeId].OneLineLeft; i < nodes[pos.NodeId].OneLineRight; i++)
-                            if (codebelong[i] == -1)
-                                codebelong[i] = pos.NodeId;
+                        //for (int i = nodes[pos.NodeId].OneLineLeft; i < nodes[pos.NodeId].OneLineRight; i++)
+                        //    if (codebelong[i] == -1)
+                        //        codebelong[i] = pos.NodeId;
                         if (nowcodeline == nodes[pos.NodeId].LineNumber)
                             nodes[pos.NodeId].Right = pos.Pos - codeposoffset;
                         else
@@ -179,7 +179,7 @@ namespace CodeBlock
             foreach (var pos in poslist)
                 if (!pos.IsStart)
                     for (int i = nodes[pos.NodeId].OneLineLeft; i < nodes[pos.NodeId].OneLineRight; i++)
-                        if (codebelong[i] == -1)
+                        if (codebelong[i] == -1 || IsFather(codebelong[i], pos.NodeId))
                             codebelong[i] = pos.NodeId;
             for (int i = 0; i < codeslinesplit.Length; i++)
             {
@@ -221,6 +221,14 @@ namespace CodeBlock
                 BigStackPanel.Children.Add(i);
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
         }
+
+        bool IsFather(int fa, int son)
+        {
+            for (; son >= 0; son = nodes[son].Father)
+                if (fa == son) return true;
+            return false;
+        }
+
         int NowLeafNum = -1, MouseMoveTimes = 0;
         List<int> MouseMoveList = new List<int>();
         List<StackPanel> tempstackpanel = new List<StackPanel>();
@@ -407,12 +415,14 @@ namespace CodeBlock
                 foreach (var i in line)
                     i.Background = l[r.Next() % 3];
             */
+            /*
             foreach (var l in textblocks)
                 foreach (var tb in l)
                     if (Regex.IsMatch(tb.Text, @"^\s*$"))
                         if (tb.Visibility == Visibility.Collapsed)
                             tb.Visibility = Visibility.Visible;
                         else tb.Visibility = Visibility.Collapsed;
+            */
         }
     }
 }
