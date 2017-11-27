@@ -6,8 +6,7 @@
 ### RuleBuilder项目
 
 1. 下载[win_flex_bison-latest](https://sourceforge.net/projects/winflexbison/?source=typ_redirect)，解压复制到$(ProgramFiles)，并把$(ProgramFiles)\win_flex_bison-latest加入系统环境变量PATH；
-2. 在项目中创建空目录.\RuleBuilder\Generated；
-3. 生成RuleBuilder项目2次。
+2. 生成RuleBuilder项目。
 
 ## 主要功能
 
