@@ -49,7 +49,7 @@ namespace CodeBlock
                     if (process.ExitCode != 0)
                     {
                         MessageBox.Show(output.ToString());
-                        throw new ArgumentException("Compile Error");
+                        throw new ArgumentException(process.ExitCode.ToString());
                     }
                     return output.ToString();
                 }

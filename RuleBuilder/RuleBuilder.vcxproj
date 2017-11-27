@@ -37,7 +37,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{C595E81B-F0F7-4BDC-97B8-285C9F76610F}</ProjectGuid>
     <RootNamespace>RuleBuilder</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

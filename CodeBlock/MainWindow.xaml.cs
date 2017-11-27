@@ -31,7 +31,23 @@ namespace CodeBlock
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Detail d = new Detail(InputTextBox.Text.Replace("\t", "    ").Replace("\r",""));
+            Detail d;
+            try
+            {
+                d = new Detail(InputTextBox.Text.Replace("\t", "    ").Replace("\r", ""));
+            }
+            catch(ArgumentException ex)
+            {
+                int returnCode = -1;
+                int.TryParse(ex.Message, out returnCode);
+                if(-returnCode>=0x10000)
+                {
+                    InputTextBox.SelectionStart = -returnCode - 0x10000;
+                    InputTextBox.SelectionLength = 0;
+                    InputTextBox.Focus();
+                }
+                return; // Compile Error
+            }
             d.ShowDialog();
         }
 

@@ -14,6 +14,6 @@
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Name="InputTextBox" TextWrapping="NoWrap" AcceptsReturn="True" FontFamily="Courier New" AllowDrop="True" Drop="InputTextBox_Drop" PreviewDragOver="InputTextBox_PreviewDragOver"/>
         </ScrollViewer>
-        <Button Click="Button_Click" Grid.Row="1" Content="next"/>
+        <Button Click="Button_Click" Grid.Row="1" Content="Analyze"/>
     </Grid>
 </Window>

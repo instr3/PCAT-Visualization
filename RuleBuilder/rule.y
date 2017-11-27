@@ -9,7 +9,10 @@ void yyerror(const char* msg) {
 	extern struct offset_t token_offset;
 	printf("Compile error near line %d, col %d\n",token_offset.line, token_offset.col);
 	puts(msg);
-	exit(-1);
+	if(token_offset.pos<0x10000)
+		exit(-(token_offset.pos+0x10000)); // Return code containing error position
+	else
+		exit(-0x1);
 }
 
 node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=NULL) 

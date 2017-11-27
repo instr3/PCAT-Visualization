@@ -29,7 +29,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox Name="treeView" Visibility="Collapsed" MouseUp="TreeView_MouseUp" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
+        <ListBox Name="treeView" Visibility="Collapsed" SelectionChanged="treeView_SelectionChanged" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

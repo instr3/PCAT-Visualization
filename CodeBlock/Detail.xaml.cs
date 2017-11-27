@@ -305,7 +305,7 @@ namespace CodeBlock
             {
                 nowcolor += delta;
                 Color c = colorScheme[(chain.Count - 1 - i) % colorScheme.Length];
-                currentRenderLayers.Add(new RenderLayer(chain.Count - 1 - i, c, string.Format("<{0}> {1} ({2} Children)", nodes[chain[i]].FatherLinkType, nodes[chain[i]].TypeName, nodes[chain[i]].ChildrenCount)));
+                currentRenderLayers.Add(new RenderLayer(chain.Count - 1 - i, c, string.Format("<{0}>{1} ({2} Children)", nodes[chain[i]].FatherLinkType, nodes[chain[i]].TypeName, nodes[chain[i]].ChildrenCount)));
                 //c.A = c.R = 255;
                 //c.B = c.G = (byte)(255 - nowcolor);
                 Brush brush = new SolidColorBrush(c);
@@ -535,7 +535,7 @@ namespace CodeBlock
             else HideTreeView();
         }
 
-        private void TreeView_MouseUp(object sender, MouseButtonEventArgs e)
+        private void treeView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int nodeid = -1;
             if (treeView.SelectedIndex != -1)
@@ -549,7 +549,6 @@ namespace CodeBlock
                 NotShowRectangles();
                 return;
             }
-            //TODO 通过Index获得NodeId，可展示代码框
             ShowRectangles(nodeid);
         }
 
