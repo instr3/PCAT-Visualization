@@ -19,7 +19,7 @@
             <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
         </ScrollViewer>
         <Button Name="btn" Content="Show Whole Tree" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
-        <ListBox Name="resultView" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
+        <ListBox Name="resultView" MouseUp="resultView_MouseUp" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

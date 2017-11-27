@@ -228,6 +228,9 @@ namespace CodeBlock
             }
             foreach (var i in smallstackpanels)
                 BigStackPanel.Children.Add(i);
+
+            
+
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
         }
 
@@ -241,7 +244,7 @@ namespace CodeBlock
         int NowLeafNum = -1, MouseMoveTimes = 0;
         List<int> MouseMoveList = new List<int>();
         List<StackPanel> tempstackpanel = new List<StackPanel>();
-        void ReturnOriginal()
+        void SpaceStackPanelReturnOriginal()
         {
             foreach (var list in textblocks)
                 foreach (var tb in list)
@@ -254,20 +257,11 @@ namespace CodeBlock
             tempstackpanel.Clear();
             BigStackPanel.Children.Clear();
         }
-        private void TextBlock_MouseMove(object sender, MouseEventArgs e)
+
+        private void ShowRectangles(int leaf)
         {
-            /*
-            if (MouseMoveTimes == 0)
-                for (int i = 0; i < TotalNodeNum; i++)
-                    MouseMoveList.Add(0);
-            MouseMoveTimes++;
-            */
 
-            int leaf = (int)(sender as TextBlock).Tag;
-            if (leaf == -1) return;
-            e.Handled = true;
-
-            ReturnOriginal();
+            SpaceStackPanelReturnOriginal();
 
             List<int> chain = new List<int>
             {
@@ -337,7 +331,7 @@ namespace CodeBlock
                         tb.FontFamily = new FontFamily("Courier New");
                         newsp.Children.Add(tb);
                     }
-                    
+
                     StackPanel newsp2 = new StackPanel();
                     tempstackpanel.Add(newsp2);
                     newsp.Children.Add(newsp2);
@@ -352,13 +346,30 @@ namespace CodeBlock
                     for (int j = 0, k = 0; k < nodes[chain[i]].Right; j++)
                     {
                         if (nodes[chain[i]].Left <= k)
-                        textblocks[nodes[chain[i]].LineNumber][j].Background = brush;
+                            textblocks[nodes[chain[i]].LineNumber][j].Background = brush;
                         k += textblocks[nodes[chain[i]].LineNumber][j].Text.Length;
                     }
                 }
             }
             for (int j = codelineleft; j < codelineright; j++)
                 nowfathersp.Children.Add(smallstackpanels[j]);
+        }
+
+        private void TextBlock_MouseMove(object sender, MouseEventArgs e)
+        {
+            /*
+            if (MouseMoveTimes == 0)
+                for (int i = 0; i < TotalNodeNum; i++)
+                    MouseMoveList.Add(0);
+            MouseMoveTimes++;
+            */
+
+            int leaf = (int)(sender as TextBlock).Tag;
+            if (leaf == -1) return;
+            e.Handled = true;
+
+            ShowRectangles(leaf);
+
         }
 
         List<Brush> colorlist;
@@ -405,11 +416,16 @@ namespace CodeBlock
                 fasp.Children.Add(smallstackpanels[i]);
         }
 
-        private void BigStackPanel_MouseMove(object sender, MouseEventArgs e)
+        private void NotShowRectangles()
         {
-            ReturnOriginal();
+            SpaceStackPanelReturnOriginal();
             for (int j = 0; j < smallstackpanels.Count; j++)
                 BigStackPanel.Children.Add(smallstackpanels[j]);
+        }
+
+        private void BigStackPanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            NotShowRectangles();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -432,6 +448,18 @@ namespace CodeBlock
             */
             VisualizeTreeOutput();
         }
+
+        private void resultView_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (resultView.SelectedIndex == -1)
+            {
+                NotShowRectangles();
+                return;
+            }
+            //TODO 通过Index获得NodeId，可展示代码框
+            //ShowRectangles(resultView.SelectedIndex);
+        }
+
         private void VisualizeTreeOutput()
         {
             currentRenderLayers.Clear();
