@@ -18,8 +18,18 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.ColumnSpan="1">
             <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
         </ScrollViewer>
-        <Button Name="btn" Content="Show Whole Tree" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
-        <ListBox Name="resultView" MouseUp="resultView_MouseUp" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
+        <Button Name="TreeButton" Content="Show Whole Tree" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
+        <ListBox Name="resultView" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="{Binding Margin}" />
+                        <TextBlock Text="{Binding Text}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox Name="treeView" Visibility="Collapsed" MouseUp="TreeView_MouseUp" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

@@ -61,11 +61,14 @@ namespace CodeBlock
             }
         }
         ObservableCollection<RenderLayer> currentRenderLayers = new ObservableCollection<RenderLayer>();
+        ObservableCollection<RenderLayer> treeRenderLayers = new ObservableCollection<RenderLayer>();
         List<OneNode> nodes;
 
         List<StackPanel> smallstackpanels = new List<StackPanel>();
         List<List<TextBlock>> textblocks = new List<List<TextBlock>>();
+        List<List<Border>> borders = new List<List<Border>>();
         int TotalNodeNum { get; set; }
+        int TextBlockBorderThickness { get; set; }
         string[] TreeOutput { get; set; }
         string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFFFCC", "#FFF5CC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
         Color[] colorScheme;
@@ -74,6 +77,7 @@ namespace CodeBlock
         {
             InitializeComponent();
             resultView.ItemsSource = currentRenderLayers;
+            treeView.ItemsSource = treeRenderLayers;
             colorScheme = colorNames.Select(s => (Color)ColorConverter.ConvertFromString(s)).ToArray();
             colorlist = new List<Brush>
             {
@@ -83,6 +87,8 @@ namespace CodeBlock
                 Brushes.Purple,
                 Brushes.Blue
             };
+            TextBlockBorderThickness = 1;
+            BigStackPanel.Margin = new Thickness(TextBlockBorderThickness);
             Random rnd = new Random();
             int rand = 0;
 
@@ -194,6 +200,7 @@ namespace CodeBlock
             {
                 StackPanel sp = new StackPanel();
                 List<TextBlock> ltb = new List<TextBlock>();
+                List<Border> lb = new List<Border>();
                 bool allspace = true;
                 int offset = linestartpos[i];
                 int lastcolor = offset < codebelong.Length ? codebelong[offset] : -2, startpos = offset;
@@ -209,11 +216,23 @@ namespace CodeBlock
                         };
                         //tb.Background = colorlist[rnd.Next() % colorlist.Count];
                         //tb.Background = colorlist[rand];
+                        //rand = (rand + 1) % colorlist.Count;
+                        Border b = new Border()
+                        {
+                            BorderThickness = new Thickness(0),
+                            Margin = new Thickness(0),
+                            BorderBrush = Brushes.Transparent,
+                            Tag = lastcolor,
+                            Child = tb
+                        };
                         if (!allspace)
-                            tb.MouseMove += TextBlock_MouseMove;
-                        rand = (rand + 1) % colorlist.Count;
+                        {
+                            tb.MouseMove += TextBlockWithBorder_MouseMove;
+                            b.MouseMove += TextBlockWithBorder_MouseMove;
+                        }
                         ltb.Add(tb);
-                        sp.Children.Add(tb);
+                        lb.Add(b);
+                        sp.Children.Add(b);
                         lastcolor = codebelong[j];
                         startpos = j;
                     }
@@ -225,11 +244,12 @@ namespace CodeBlock
                 sp.HorizontalAlignment = HorizontalAlignment.Left;
                 smallstackpanels.Add(sp);
                 textblocks.Add(ltb);
+                borders.Add(lb);
             }
             foreach (var i in smallstackpanels)
                 BigStackPanel.Children.Add(i);
-
             
+            VisualizeTreeOutput();
 
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
         }
@@ -244,13 +264,15 @@ namespace CodeBlock
         int NowLeafNum = -1, MouseMoveTimes = 0;
         List<int> MouseMoveList = new List<int>();
         List<StackPanel> tempstackpanel = new List<StackPanel>();
-        void SpaceStackPanelReturnOriginal()
+        void ColorSpaceReturnOriginal()
         {
-            foreach (var list in textblocks)
-                foreach (var tb in list)
+            foreach (var list in borders)
+                foreach (var b in list)
                 {
-                    tb.Background = Brushes.Transparent;
-                    tb.Visibility = Visibility.Visible;
+                    b.Background = Brushes.Transparent;
+                    b.Visibility = Visibility.Visible;
+                    b.BorderThickness = new Thickness(0);
+                    b.Margin = new Thickness(0);
                 }
             foreach (var sp in tempstackpanel)
                 sp.Children.Clear();
@@ -261,7 +283,7 @@ namespace CodeBlock
         private void ShowRectangles(int leaf)
         {
 
-            SpaceStackPanelReturnOriginal();
+            ColorSpaceReturnOriginal();
 
             List<int> chain = new List<int>
             {
@@ -311,6 +333,7 @@ namespace CodeBlock
                     for (int j = codelineleft; j < nodes[chain[i]].Left; j++)
                         nowfathersp.Children.Add(smallstackpanels[j]);
                     nowfathersp.Children.Add(newsp);
+
                     for (int j = nodes[chain[i]].Right; j < codelineright; j++)
                         nowfathersp.Children.Add(smallstackpanels[j]);
                     codelineleft = nodes[chain[i]].Left;
@@ -324,18 +347,24 @@ namespace CodeBlock
                                 allspace = false;
                         if (!allspace) break;
                         for (int j = codelineleft; j < codelineright; j++)
-                            textblocks[j][movedspaces].Visibility = Visibility.Collapsed;
+                            borders[j][movedspaces].Visibility = Visibility.Collapsed;
                         movedspaces++;
                         TextBlock tb = new TextBlock();
                         tb.Text = " ";
                         tb.FontFamily = new FontFamily("Courier New");
                         newsp.Children.Add(tb);
                     }
-
                     StackPanel newsp2 = new StackPanel();
+                    Border b = new Border()
+                    {
+                        BorderThickness = new Thickness(TextBlockBorderThickness),
+                        Margin = new Thickness(-TextBlockBorderThickness),
+                        BorderBrush = Brushes.Gray,
+                        Background = brush,
+                        Child = newsp2
+                    };
                     tempstackpanel.Add(newsp2);
-                    newsp.Children.Add(newsp2);
-                    newsp2.Background = brush;
+                    newsp.Children.Add(b);
                     nowfathersp = newsp2;
                 }
                 else
@@ -343,11 +372,42 @@ namespace CodeBlock
                     for (int j = codelineleft; j < codelineright; j++)
                         nowfathersp.Children.Add(smallstackpanels[j]);
                     codelineright = codelineleft;
+                    int left = -1, right = -1;
                     for (int j = 0, k = 0; k < nodes[chain[i]].Right; j++)
                     {
                         if (nodes[chain[i]].Left <= k)
-                            textblocks[nodes[chain[i]].LineNumber][j].Background = brush;
+                        {
+                            if (left == -1) left = j;
+                            right = j;
+                            borders[nodes[chain[i]].LineNumber][j].Background = brush;
+                            borders[nodes[chain[i]].LineNumber][j].BorderBrush = Brushes.Gray;
+                            borders[nodes[chain[i]].LineNumber][j].Margin = new Thickness(0, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
+                            borders[nodes[chain[i]].LineNumber][j].BorderThickness = new Thickness(0, TextBlockBorderThickness, 0, TextBlockBorderThickness);
+                        }
                         k += textblocks[nodes[chain[i]].LineNumber][j].Text.Length;
+                    }
+                    borders[nodes[chain[i]].LineNumber][left].Margin = new Thickness(-TextBlockBorderThickness, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
+                    borders[nodes[chain[i]].LineNumber][left].BorderThickness = new Thickness(TextBlockBorderThickness, TextBlockBorderThickness, 0, TextBlockBorderThickness);
+                    //borders[nodes[chain[i]].LineNumber][right].Margin = new Thickness(0, -TextBlockBorderThickness, -TextBlockBorderThickness, -TextBlockBorderThickness);
+                    //borders[nodes[chain[i]].LineNumber][right].BorderThickness = new Thickness(0, TextBlockBorderThickness, TextBlockBorderThickness, TextBlockBorderThickness);
+                    if (right != borders[nodes[chain[i]].LineNumber].Count - 1)
+                    {
+                        var oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].Margin;
+                        oldthickness.Left = -TextBlockBorderThickness;
+                        borders[nodes[chain[i]].LineNumber][right + 1].Margin = oldthickness;
+                        oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness;
+                        oldthickness.Left = TextBlockBorderThickness;
+                        borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness = oldthickness;
+                        borders[nodes[chain[i]].LineNumber][right + 1].BorderBrush = Brushes.Gray;
+                    }
+                    else
+                    {
+                        var oldthickness = borders[nodes[chain[i]].LineNumber][right].Margin;
+                        oldthickness.Right = -TextBlockBorderThickness;
+                        borders[nodes[chain[i]].LineNumber][right].Margin = oldthickness;
+                        oldthickness = borders[nodes[chain[i]].LineNumber][right].BorderThickness;
+                        oldthickness.Right = TextBlockBorderThickness;
+                        borders[nodes[chain[i]].LineNumber][right].BorderThickness = oldthickness;
                     }
                 }
             }
@@ -355,7 +415,7 @@ namespace CodeBlock
                 nowfathersp.Children.Add(smallstackpanels[j]);
         }
 
-        private void TextBlock_MouseMove(object sender, MouseEventArgs e)
+        private void TextBlockWithBorder_MouseMove(object sender, MouseEventArgs e)
         {
             /*
             if (MouseMoveTimes == 0)
@@ -364,7 +424,17 @@ namespace CodeBlock
             MouseMoveTimes++;
             */
 
-            int leaf = (int)(sender as TextBlock).Tag;
+            if (treeView.Visibility == Visibility.Visible)
+                return;
+            int leaf = -1;
+            try
+            {
+                leaf = (int)(sender as TextBlock).Tag;
+            }
+            catch
+            {
+                leaf = (int)(sender as Border).Tag;
+            }
             if (leaf == -1) return;
             e.Handled = true;
 
@@ -418,14 +488,28 @@ namespace CodeBlock
 
         private void NotShowRectangles()
         {
-            SpaceStackPanelReturnOriginal();
+            ColorSpaceReturnOriginal();
             for (int j = 0; j < smallstackpanels.Count; j++)
                 BigStackPanel.Children.Add(smallstackpanels[j]);
         }
 
         private void BigStackPanel_MouseMove(object sender, MouseEventArgs e)
         {
+            if (treeView.Visibility == Visibility.Visible)
+                return;
             NotShowRectangles();
+        }
+
+        private void HideTreeView()
+        {
+            treeView.Visibility = Visibility.Collapsed;
+            TreeButton.Content = "Show Whole Tree";
+        }
+
+        private void ShowTreeView()
+        {
+            treeView.Visibility = Visibility.Visible;
+            TreeButton.Content = "Hide Whole Tree";
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -446,28 +530,37 @@ namespace CodeBlock
                             tb.Visibility = Visibility.Visible;
                         else tb.Visibility = Visibility.Collapsed;
             */
-            VisualizeTreeOutput();
+            if (treeView.Visibility == Visibility.Collapsed)
+                ShowTreeView();
+            else HideTreeView();
         }
 
-        private void resultView_MouseUp(object sender, MouseButtonEventArgs e)
+        private void TreeView_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (resultView.SelectedIndex == -1)
+            int nodeid = -1;
+            if (treeView.SelectedIndex != -1)
+            {
+                Match m = Regex.Match(treeRenderLayers[treeView.SelectedIndex].Text, @".*?:(\d+).*");
+                if (m.Success)
+                    nodeid = Convert.ToInt32(m.Groups[1].Value);
+            }
+            if (nodeid == -1)
             {
                 NotShowRectangles();
                 return;
             }
             //TODO 通过Index获得NodeId，可展示代码框
-            //ShowRectangles(resultView.SelectedIndex);
+            ShowRectangles(nodeid);
         }
 
         private void VisualizeTreeOutput()
         {
-            currentRenderLayers.Clear();
+            treeRenderLayers.Clear();
             foreach(string s in TreeOutput)
             {
                 int depthCount = s.TakeWhile(Char.IsWhiteSpace).Count();
                 Color c = colorScheme[depthCount % colorScheme.Length];
-                currentRenderLayers.Add(new RenderLayer(depthCount, c, s.Substring(depthCount)));
+                treeRenderLayers.Add(new RenderLayer(depthCount, c, s.Substring(depthCount)));
             }
         }
     }
