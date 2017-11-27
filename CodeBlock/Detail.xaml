@@ -23,7 +23,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="{Binding Margin}" />
+                        <Border Width="16" Height="16" Margin="{Binding Margin}" BorderThickness="1" BorderBrush="Gray" Background="{Binding Color}"/>
                         <TextBlock Text="{Binding Text}" />
                     </StackPanel>
                 </DataTemplate>
@@ -33,7 +33,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Rectangle Fill="{Binding Color}" Width="16" Height="16" Margin="{Binding Margin}" />
+                        <Border Width="16" Height="16" Margin="{Binding Margin}" BorderThickness="1" BorderBrush="Gray" Background="{Binding Color}"/>
                         <TextBlock Text="{Binding Text}" />
                     </StackPanel>
                 </DataTemplate>
