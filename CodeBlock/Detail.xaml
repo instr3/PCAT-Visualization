@@ -16,7 +16,14 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.ColumnSpan="1">
-            <StackPanel Name="BigStackPanel" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Name="BreakPointStackPanel" Margin="0 0 5 0" Background="LightGray"/>
+                <StackPanel Name="BigStackPanel" Grid.Column="1" MouseMove="BigStackPanel_MouseMove" Orientation="Vertical"/>
+            </Grid>
         </ScrollViewer>
         <Button Name="TreeButton" Content="Show Whole Tree" Click="Button_Click" Grid.Row="1" Margin="0 5 0 0" Grid.ColumnSpan="1"/>
         <ListBox Name="resultView" Grid.Column="1" Margin="10,10,10,10" Grid.RowSpan="2">

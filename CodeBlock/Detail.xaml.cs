@@ -72,10 +72,12 @@ namespace CodeBlock
         string[] TreeOutput { get; set; }
         string[] colorNames = { "#CCFFFF", "#CCFFEB", "#CCFFD6", "#E0FFCC", "#FFFFCC", "#FFF5CC", "#FFEBCC", "#FFCCCC", "#FFCCE0", "#FFCCF5", "#EBCCFF", "#D6CCFF", "#E6E6E6" };
         Color[] colorScheme;
+        string breakPointString = "●";
 
         public Detail(string code)
         {
             InitializeComponent();
+            code += "\n";
             resultView.ItemsSource = currentRenderLayers;
             treeView.ItemsSource = treeRenderLayers;
             colorScheme = colorNames.Select(s => (Color)ColorConverter.ConvertFromString(s)).ToArray();
@@ -89,8 +91,7 @@ namespace CodeBlock
             };
             TextBlockBorderThickness = 1;
             BigStackPanel.Margin = new Thickness(TextBlockBorderThickness);
-            Random rnd = new Random();
-            int rand = 0;
+            //Random rnd = new Random();
 
             /*
             使用tempstackpanellist处理临时stackpanel的回收问题
@@ -148,7 +149,6 @@ namespace CodeBlock
                     nodes[childid].FatherLinkType = childlinestring;
                 }
             }
-            //TODO: poslist sort
             poslist.Sort();
             int codeposoffset = 0, nowpos = 0, nowcodeline = 0;
             var codeslinesplit = Regex.Split(code, @"\n");
@@ -159,9 +159,9 @@ namespace CodeBlock
                 codebelong[i] = -1;
             for (;;)
             {
-                linestartpos[nowcodeline] = codeposoffset;
-                if (nowpos >= poslist.Count)
+                if (nowpos >= poslist.Count && nowcodeline >= codeslinesplit.Length)
                     break;
+                linestartpos[nowcodeline] = codeposoffset;
                 int start = codeposoffset, end = codeposoffset + codeslinesplit[nowcodeline].Length + 1;
                 for (; nowpos < poslist.Count && poslist[nowpos].Pos < end; nowpos++)
                 {
@@ -251,7 +251,37 @@ namespace CodeBlock
             
             VisualizeTreeOutput();
 
+            for (int i = 0; i < codeslinesplit.Length; i ++)
+            {
+                TextBlock tb = new TextBlock()
+                {
+                    Text = breakPointString,
+                    Foreground = Brushes.Transparent,
+                    FontFamily = new FontFamily("新宋体"),
+                    Height = 22
+                };
+                tb.MouseDown += BreakPoint_MouseDown;
+                BreakPointStackPanel.Children.Add(tb);
+            }
+
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
+        }
+
+        private void BreakPoint_MouseDown(object sender, MouseEventArgs e)
+        {
+            TextBlock tb = sender as TextBlock;
+            if (tb.Foreground == Brushes.Red)
+                tb.Foreground = Brushes.Transparent;
+            else tb.Foreground = Brushes.Red;
+        }
+
+        public List<int> GetBreakLines()
+        {
+            var res = new List<int>();
+            for (int i = 0; i < BreakPointStackPanel.Children.Count; i++)
+                if ((BreakPointStackPanel.Children[i] as TextBlock).Foreground == Brushes.Red)
+                    res.Add(i);
+            return res;
         }
 
         bool IsFather(int fa, int son)
@@ -260,8 +290,7 @@ namespace CodeBlock
                 if (fa == son) return true;
             return false;
         }
-
-        int NowLeafNum = -1, MouseMoveTimes = 0;
+        
         List<int> MouseMoveList = new List<int>();
         List<StackPanel> tempstackpanel = new List<StackPanel>();
         void ColorSpaceReturnOriginal()
@@ -280,7 +309,7 @@ namespace CodeBlock
             BigStackPanel.Children.Clear();
         }
 
-        private void ShowRectangles(int leaf)
+        private void ShowRectangles(int leaf, bool showroute = true)
         {
 
             ColorSpaceReturnOriginal();
@@ -349,9 +378,11 @@ namespace CodeBlock
                         for (int j = codelineleft; j < codelineright; j++)
                             borders[j][movedspaces].Visibility = Visibility.Collapsed;
                         movedspaces++;
-                        TextBlock tb = new TextBlock();
-                        tb.Text = " ";
-                        tb.FontFamily = new FontFamily("Courier New");
+                        TextBlock tb = new TextBlock()
+                        {
+                            Text = " ",
+                            FontFamily = new FontFamily("Courier New")
+                        };
                         newsp.Children.Add(tb);
                     }
                     StackPanel newsp2 = new StackPanel();
@@ -359,8 +390,8 @@ namespace CodeBlock
                     {
                         BorderThickness = new Thickness(TextBlockBorderThickness),
                         Margin = new Thickness(-TextBlockBorderThickness),
-                        BorderBrush = Brushes.Gray,
-                        Background = brush,
+                        BorderBrush = showroute || i == 0 ? Brushes.Gray : Brushes.Transparent,
+                        Background = showroute || i == 0 ? brush : Brushes.Transparent,
                         Child = newsp2
                     };
                     tempstackpanel.Add(newsp2);
@@ -373,41 +404,44 @@ namespace CodeBlock
                         nowfathersp.Children.Add(smallstackpanels[j]);
                     codelineright = codelineleft;
                     int left = -1, right = -1;
-                    for (int j = 0, k = 0; k < nodes[chain[i]].Right; j++)
+                    if (showroute || i == 0)
                     {
-                        if (nodes[chain[i]].Left <= k)
+                        for (int j = 0, k = 0; k < nodes[chain[i]].Right; j++)
                         {
-                            if (left == -1) left = j;
-                            right = j;
-                            borders[nodes[chain[i]].LineNumber][j].Background = brush;
-                            borders[nodes[chain[i]].LineNumber][j].BorderBrush = Brushes.Gray;
-                            borders[nodes[chain[i]].LineNumber][j].Margin = new Thickness(0, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
-                            borders[nodes[chain[i]].LineNumber][j].BorderThickness = new Thickness(0, TextBlockBorderThickness, 0, TextBlockBorderThickness);
+                            if (nodes[chain[i]].Left <= k)
+                            {
+                                if (left == -1) left = j;
+                                right = j;
+                                borders[nodes[chain[i]].LineNumber][j].Background = brush;
+                                borders[nodes[chain[i]].LineNumber][j].BorderBrush = Brushes.Gray;
+                                borders[nodes[chain[i]].LineNumber][j].Margin = new Thickness(0, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
+                                borders[nodes[chain[i]].LineNumber][j].BorderThickness = new Thickness(0, TextBlockBorderThickness, 0, TextBlockBorderThickness);
+                            }
+                            k += textblocks[nodes[chain[i]].LineNumber][j].Text.Length;
                         }
-                        k += textblocks[nodes[chain[i]].LineNumber][j].Text.Length;
-                    }
-                    borders[nodes[chain[i]].LineNumber][left].Margin = new Thickness(-TextBlockBorderThickness, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
-                    borders[nodes[chain[i]].LineNumber][left].BorderThickness = new Thickness(TextBlockBorderThickness, TextBlockBorderThickness, 0, TextBlockBorderThickness);
-                    //borders[nodes[chain[i]].LineNumber][right].Margin = new Thickness(0, -TextBlockBorderThickness, -TextBlockBorderThickness, -TextBlockBorderThickness);
-                    //borders[nodes[chain[i]].LineNumber][right].BorderThickness = new Thickness(0, TextBlockBorderThickness, TextBlockBorderThickness, TextBlockBorderThickness);
-                    if (right != borders[nodes[chain[i]].LineNumber].Count - 1)
-                    {
-                        var oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].Margin;
-                        oldthickness.Left = -TextBlockBorderThickness;
-                        borders[nodes[chain[i]].LineNumber][right + 1].Margin = oldthickness;
-                        oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness;
-                        oldthickness.Left = TextBlockBorderThickness;
-                        borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness = oldthickness;
-                        borders[nodes[chain[i]].LineNumber][right + 1].BorderBrush = Brushes.Gray;
-                    }
-                    else
-                    {
-                        var oldthickness = borders[nodes[chain[i]].LineNumber][right].Margin;
-                        oldthickness.Right = -TextBlockBorderThickness;
-                        borders[nodes[chain[i]].LineNumber][right].Margin = oldthickness;
-                        oldthickness = borders[nodes[chain[i]].LineNumber][right].BorderThickness;
-                        oldthickness.Right = TextBlockBorderThickness;
-                        borders[nodes[chain[i]].LineNumber][right].BorderThickness = oldthickness;
+                        borders[nodes[chain[i]].LineNumber][left].Margin = new Thickness(-TextBlockBorderThickness, -TextBlockBorderThickness, 0, -TextBlockBorderThickness);
+                        borders[nodes[chain[i]].LineNumber][left].BorderThickness = new Thickness(TextBlockBorderThickness, TextBlockBorderThickness, 0, TextBlockBorderThickness);
+                        //borders[nodes[chain[i]].LineNumber][right].Margin = new Thickness(0, -TextBlockBorderThickness, -TextBlockBorderThickness, -TextBlockBorderThickness);
+                        //borders[nodes[chain[i]].LineNumber][right].BorderThickness = new Thickness(0, TextBlockBorderThickness, TextBlockBorderThickness, TextBlockBorderThickness);
+                        if (right != borders[nodes[chain[i]].LineNumber].Count - 1)
+                        {
+                            var oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].Margin;
+                            oldthickness.Left = -TextBlockBorderThickness;
+                            borders[nodes[chain[i]].LineNumber][right + 1].Margin = oldthickness;
+                            oldthickness = borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness;
+                            oldthickness.Left = TextBlockBorderThickness;
+                            borders[nodes[chain[i]].LineNumber][right + 1].BorderThickness = oldthickness;
+                            borders[nodes[chain[i]].LineNumber][right + 1].BorderBrush = Brushes.Gray;
+                        }
+                        else
+                        {
+                            var oldthickness = borders[nodes[chain[i]].LineNumber][right].Margin;
+                            oldthickness.Right = -TextBlockBorderThickness;
+                            borders[nodes[chain[i]].LineNumber][right].Margin = oldthickness;
+                            oldthickness = borders[nodes[chain[i]].LineNumber][right].BorderThickness;
+                            oldthickness.Right = TextBlockBorderThickness;
+                            borders[nodes[chain[i]].LineNumber][right].BorderThickness = oldthickness;
+                        }
                     }
                 }
             }
