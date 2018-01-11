@@ -67,6 +67,19 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CompilerInvoker.cs" />
+    <Compile Include="Context\BaseNode.cs" />
+    <Compile Include="Context\Interruption.cs" />
+    <Compile Include="Context\Mediator.cs" />
+    <Compile Include="Context\PCAT\AssignNode.cs" />
+    <Compile Include="Context\PCAT\BinaryOpNode.cs" />
+    <Compile Include="Context\PCAT\ElseIfList.cs" />
+    <Compile Include="Context\PCAT\ElsifNode.cs" />
+    <Compile Include="Context\PCAT\IfNode.cs" />
+    <Compile Include="Context\PCAT\UnaryOpNode.cs" />
+    <Compile Include="Context\PCAT\WhileNode.cs" />
+    <Compile Include="Context\Return.cs" />
+    <Compile Include="Context\Variable.cs" />
+    <Compile Include="Context\VariableReference.cs" />
     <Compile Include="Detail.xaml.cs">
       <DependentUpon>Detail.xaml</DependentUpon>
     </Compile>
