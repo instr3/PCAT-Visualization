@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeBlock.Context;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -34,35 +35,10 @@ namespace CodeBlock
                 return Pos.CompareTo(ip.Pos);
             }
         }
-        class OneNode
-        {
-            public int Father { get; set; }
-            public string FatherLinkType { get; set; }
-            public int LineNumber { get; set; }
-            public int Left { get; set; }
-            public int Right { get; set; }
-            public int OneLineLeft { get; set; }
-            public int OneLineRight { get; set; }
-            public int TypeMacro { get; set; }
-            public string TypeName { get; set; }
-            public int ChildrenCount { get; set; }
-        };
 
-        class RenderLayer
-        {
-            public Thickness Margin { get; private set; }
-            public Brush Color { get; private set; }
-            public string Text { get; private set; }
-            public RenderLayer(int depth, Color inputColor, string inputText)
-            {
-                Margin = new Thickness(depth * 15, 2, 5, 2);
-                Color = new SolidColorBrush(inputColor);
-                Text = inputText;
-            }
-        }
         ObservableCollection<RenderLayer> currentRenderLayers = new ObservableCollection<RenderLayer>();
         ObservableCollection<RenderLayer> treeRenderLayers = new ObservableCollection<RenderLayer>();
-        List<OneNode> nodes;
+        List<RawNode> nodes;
 
         List<StackPanel> smallstackpanels = new List<StackPanel>();
         List<List<TextBlock>> textblocks = new List<List<TextBlock>>();
@@ -112,9 +88,9 @@ namespace CodeBlock
                 throw;
             }
             TotalNodeNum = Convert.ToInt32(input[0]);
-            nodes = new List<OneNode>();
+            nodes = new List<RawNode>();
             for (int i = TotalNodeNum; i > 0; i--)
-                nodes.Add(new OneNode() { Father = -1, FatherLinkType="root" });
+                nodes.Add(new RawNode() { Father = -1, FatherLinkType="root" });
             List<ImportantPos> poslist = new List<ImportantPos>();
             for (int i = 1; i < input.Length; i++)
             {
@@ -265,6 +241,7 @@ namespace CodeBlock
             }
 
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
+            Mediator.Instance.Code = code;
         }
 
         private void BreakPoint_MouseDown(object sender, MouseEventArgs e)
@@ -308,8 +285,11 @@ namespace CodeBlock
             tempstackpanel.Clear();
             BigStackPanel.Children.Clear();
         }
-
-        private void ShowRectangles(int leaf, bool showroute = true)
+        public void ShowError(string message)
+        {
+            MessageBox.Show(message);
+        }
+        public void ShowRectangles(int leaf, bool showroute = true)
         {
 
             ColorSpaceReturnOriginal();
@@ -451,6 +431,8 @@ namespace CodeBlock
 
         private void TextBlockWithBorder_MouseMove(object sender, MouseEventArgs e)
         {
+            if (runningProgram)
+                return;
             /*
             if (MouseMoveTimes == 0)
                 for (int i = 0; i < TotalNodeNum; i++)
@@ -529,6 +511,8 @@ namespace CodeBlock
 
         private void BigStackPanel_MouseMove(object sender, MouseEventArgs e)
         {
+            if (runningProgram)
+                return;
             if (treeView.Visibility == Visibility.Visible)
                 return;
             NotShowRectangles();
@@ -595,6 +579,29 @@ namespace CodeBlock
                 Color c = colorScheme[depthCount % colorScheme.Length];
                 treeRenderLayers.Add(new RenderLayer(depthCount, c, s.Substring(depthCount)));
             }
+        }
+        bool runningProgram = false;
+        private void ButtonRun_Click(object sender, RoutedEventArgs e)
+        {
+            if(!runningProgram)
+            {
+                Mediator.Instance.RegisterForm(this);
+                Mediator.Instance.RegisterGrammarTree(nodes);
+                runningProgram = true;
+            }
+            Mediator.Instance.ExecuteToEnd();
+        }
+
+        private void ButtonSingleStep_Click(object sender, RoutedEventArgs e)
+        {
+            if (!runningProgram)
+            {
+                Mediator.Instance.RegisterForm(this);
+                Mediator.Instance.RegisterGrammarTree(nodes);
+                runningProgram = true;
+            }
+            Mediator.Instance.ExecuteOneStep();
+
         }
     }
 }
