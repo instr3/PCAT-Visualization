@@ -25,8 +25,9 @@ namespace CodeBlock
         public MainWindow()
         {
             InitializeComponent();
-            if (File.Exists("test17-space.pcat"))
-                InputTextBox.Text = File.ReadAllText("test17-space.pcat");
+            string testFileName = "tests\\test03.pcat";
+            if (File.Exists(testFileName))
+                InputTextBox.Text = File.ReadAllText(testFileName);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -48,7 +49,7 @@ namespace CodeBlock
                 }
                 return; // Compile Error
             }
-            d.ShowDialog();
+            d.Show();
         }
 
         private void InputTextBox_Drop(object sender, DragEventArgs e)
