@@ -42,6 +42,8 @@ namespace CodeBlock.Context
         }
         public void RegisterGrammarTree(List<RawNode> rawNodes)
         {
+            interruptions = null;
+            Variable.Root = new Variable();
             BaseNode[] baseNodes = new BaseNode[rawNodes.Count];
             bool hasRoot = false;
             for (int i = 0; i < rawNodes.Count; ++i)
@@ -92,6 +94,8 @@ namespace CodeBlock.Context
                     FunctionNodes.Add(node);
                 }
             }
+
+            Variable.Root["$OUTPUT$"] = new Variable();
         }
         public void RegisterForm(Detail detailForm)
         {

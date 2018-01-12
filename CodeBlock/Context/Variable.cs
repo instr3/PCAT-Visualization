@@ -8,7 +8,7 @@ namespace CodeBlock.Context
 {
     public class Variable
     {
-        public static Variable Root { get; private set; } = new Variable();
+        public static Variable Root { get; set; }
         public string TypeName { get; protected set; }
         private Dictionary<object, object> dict;
         public Variable()
@@ -23,6 +23,10 @@ namespace CodeBlock.Context
         public bool ContainsKey(object key)
         {
             return dict.ContainsKey(key);
+        }
+        public int ChildCount()
+        {
+            return dict.Count();
         }
 
         internal void AddVariable(string idName, string typeName, string initValue)
@@ -90,20 +94,29 @@ namespace CodeBlock.Context
                 return "structure";
             return obj.GetType().ToString();
         }
-        private void ToRenderLayerInner(ICollection<RenderLayer> layers, int depth, string suffix)
+        private void ToRenderLayerInner(ICollection<RenderLayer> layers, int depth, object suffix)
         {
+
+            string str = suffix.ToString();
+            if (!string.IsNullOrEmpty(TypeName))
+                str += " : " + TypeName;
+            layers.Add(new RenderLayer(depth, str));
             foreach (KeyValuePair<object, object> kv in dict)
             {
                 if (kv.Value is Variable)
-                    (kv.Value as Variable).ToRenderLayerInner(layers, depth + 1, "");
+                    (kv.Value as Variable).ToRenderLayerInner(layers, depth + 1, kv.Key);
                 else
-                    layers.Add(new RenderLayer(depth, suffix + kv.Key.ToString() + " = " + kv.Value.ToString()));
+                {
+                    char connector = kv.Key is int ? ':' : '=';
+                    layers.Add(new RenderLayer(depth + 1, kv.Key.ToString() + " "+ connector + " " + kv.Value.ToString().Replace("\n", "\\n")));
+                }
+                    
             }
         }
         public void ToRenderLayer(ICollection<RenderLayer> layers)
         {
             layers.Clear();
-            ToRenderLayerInner(layers, 0, "");
+            ToRenderLayerInner(layers, 0, "root");
         }
         private string ToStringInner(string suffix)
         {

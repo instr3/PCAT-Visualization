@@ -12,7 +12,25 @@ namespace CodeBlock.Context.PCAT
 
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {
-            throw new NotImplementedException();
+            BaseNode thingsToWrite = ChildID[0];
+            string text = "";
+            foreach (BaseNode writeExpr in thingsToWrite.ChildID)
+            {
+                if(writeExpr.Type == "STRING")
+                {
+                    string result = writeExpr.GetCode();
+                    text += result.Substring(1, result.Length - 2);
+                }
+                else //writeExpr is expression
+                {
+                    Return rhs = new Return();
+                    yield return writeExpr.Execute(rhs);
+                    text += rhs.Object.ToString();
+                }
+            }
+            Variable writeVar = Variable.Root["$OUTPUT$"] as Variable;
+            writeVar[writeVar.ChildCount()] = text;
+            yield break;
         }
     }
 }

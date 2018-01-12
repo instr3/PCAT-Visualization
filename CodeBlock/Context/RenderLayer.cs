@@ -25,7 +25,7 @@ namespace CodeBlock.Context
         public RenderLayer(int depth, string inputText)
         {
             Margin = new Thickness(depth * 15, 2, 5, 2);
-            Color = new SolidColorBrush(colorScheme[depth % colorScheme.Length]);
+            Color = new SolidColorBrush(colorScheme[(depth*3) % colorScheme.Length]);
             Text = inputText;
         }
     }

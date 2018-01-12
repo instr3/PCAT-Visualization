@@ -242,6 +242,7 @@ namespace CodeBlock
 
             //RandBlock(ref BigStackPanel, 0, smallstackpanels.Count, 0);
             Mediator.Instance.Code = code;
+            runningProgram = false;
         }
 
         private void BreakPoint_MouseDown(object sender, MouseEventArgs e)
