@@ -549,6 +549,11 @@ namespace CodeBlock
                             tb.Visibility = Visibility.Visible;
                         else tb.Visibility = Visibility.Collapsed;
             */
+            /*
+            var inputdialog = new InputTextBox();
+            inputdialog.ShowDialog();
+            MessageBox.Show("|" + inputdialog.Result + "|");
+            */
             if (treeView.Visibility == Visibility.Collapsed)
                 ShowTreeView();
             else HideTreeView();
