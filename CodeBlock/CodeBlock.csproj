@@ -81,9 +81,11 @@
     <Compile Include="Context\PCAT\ConstantTermNode.cs" />
     <Compile Include="Context\PCAT\ElseIfList.cs" />
     <Compile Include="Context\PCAT\ElsifNode.cs" />
+    <Compile Include="Context\PCAT\ExitNode.cs" />
     <Compile Include="Context\PCAT\ForNode.cs" />
     <Compile Include="Context\PCAT\IfNode.cs" />
     <Compile Include="Context\PCAT\IgnoredNode.cs" />
+    <Compile Include="Context\PCAT\LoopNode.cs" />
     <Compile Include="Context\PCAT\NodeListFullPause.cs" />
     <Compile Include="Context\PCAT\NodeListNotPause.cs" />
     <Compile Include="Context\PCAT\NotSupportedNode.cs" />

@@ -85,7 +85,27 @@ namespace CodeBlock.Context
             {
                 foreach (Interruption ir in col)
                 {
-                    yield return ir;
+                    if (ir.Type == "exit")
+                    {
+                        // for valid exit, a for/while/loop can be met outside
+                        if (Type == "for" || Type == "while" || Type == "loop")
+                        {
+                            yield break;
+                        }
+                        else if (Type == "body") // Cannot find a for/while/loop
+                        {
+                            throw new Exception("Invalid exit encountered");
+                        }
+                        else // Pass to parent's executor
+                        {
+                            yield return ir;
+                            yield break;
+                        }
+                    }
+                    else
+                    {
+                        yield return ir;
+                    }
                 }
             }
             yield break;
