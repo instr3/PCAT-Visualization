@@ -503,7 +503,7 @@ namespace CodeBlock
                 fasp.Children.Add(smallstackpanels[i]);
         }
 
-        private void NotShowRectangles()
+        public void HideAllRectangles()
         {
             ColorSpaceReturnOriginal();
             for (int j = 0; j < smallstackpanels.Count; j++)
@@ -516,7 +516,7 @@ namespace CodeBlock
                 return;
             if (treeView.Visibility == Visibility.Visible)
                 return;
-            NotShowRectangles();
+            HideAllRectangles();
         }
 
         private void HideTreeView()
@@ -570,7 +570,7 @@ namespace CodeBlock
             }
             if (nodeid == -1)
             {
-                NotShowRectangles();
+                HideAllRectangles();
                 return;
             }
             ShowRectangles(nodeid);

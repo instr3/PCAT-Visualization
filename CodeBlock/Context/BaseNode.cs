@@ -22,9 +22,13 @@ namespace CodeBlock.Context
         private string[] acceptedTypes;
         private int assignedChildCount;
 
+
         public BaseNode()
         {
-            acceptedTypes = AcceptedTypeNames.Split('#');
+            if (AcceptedTypeNames == "")
+                acceptedTypes = new string[0];
+            else
+                acceptedTypes = AcceptedTypeNames.Split('#');
         }
 
         public void Init(RawNode rawNode, int id)

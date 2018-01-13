@@ -28,8 +28,8 @@ namespace CodeBlock.Context.PCAT
                     text += rhs.Object.ToString();
                 }
             }
-            Variable writeVar = Variable.Root["$OUTPUT$"] as Variable;
-            writeVar[writeVar.ChildCount()] = text;
+            Variable writeVar = Variable.Root.Get("$OUTPUT$") as Variable;
+            writeVar.RegisterObject(writeVar.ChildCount(), text);
             yield break;
         }
     }

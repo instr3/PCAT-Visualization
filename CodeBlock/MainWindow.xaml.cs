@@ -25,7 +25,7 @@ namespace CodeBlock
         public MainWindow()
         {
             InitializeComponent();
-            string testFileName = "tests\\test03.pcat";
+            string testFileName = "tests\\test05.pcat";
             if (File.Exists(testFileName))
                 InputTextBox.Text = File.ReadAllText(testFileName);
         }

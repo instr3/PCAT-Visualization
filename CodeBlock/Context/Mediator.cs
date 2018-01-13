@@ -17,7 +17,6 @@ namespace CodeBlock.Context
         public List<BaseNode> FunctionNodes { get; private set; }
         public string Code { get; internal set; }
 
-  
         public BaseNode ExecutingFunction { get; set; }
         public Variable ExecutingNameSpace { get; set; }
 
@@ -95,7 +94,7 @@ namespace CodeBlock.Context
                 }
             }
 
-            Variable.Root["$OUTPUT$"] = new Variable();
+            Variable.Root.RegisterObject("$OUTPUT$", new Variable());
         }
         public void RegisterForm(Detail detailForm)
         {
@@ -104,11 +103,20 @@ namespace CodeBlock.Context
             DetailForm.resultView.ItemsSource = VariableRenderer;
         }
         IEnumerator<Interruption> interruptions;
+        bool programEnded;
         public void ExecuteOneStep()
         {
             if (interruptions is null)
+            {
                 interruptions = RootNode.Execute().GetEnumerator();
-            if(interruptions.MoveNext())
+                programEnded = false;
+            }
+            if (programEnded)
+            {
+                DetailForm.ShowError("Program end!");
+                return;
+            }
+            if (interruptions.MoveNext())
             {
                 Interruption interruption = interruptions.Current;
                 DetailForm.ShowRectangles(interruption.Position.ID, false);
@@ -117,22 +125,40 @@ namespace CodeBlock.Context
             }
             else
             {
-                DetailForm.ShowError("Program end!");
+                programEnded = true;
+                DetailForm.HideAllRectangles();
             }
             Variable.Root.ToRenderLayer(VariableRenderer);
         }
         public void ExecuteToEnd()
         {
             if (interruptions is null)
+            {
                 interruptions = RootNode.Execute().GetEnumerator();
+                programEnded = false;
+            }
+            if (programEnded)
+            {
+                DetailForm.ShowError("Program end!");
+                return;
+            }
             while (interruptions.MoveNext())
             {
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
                 //Interruption interruption = interruptions.Current;
                 //DetailForm.ShowRectangles(interruption.Position.ID, false);
                 //DetailForm.ShowError(interruption.Type);
             }
+            programEnded = true;
+            DetailForm.HideAllRectangles();
             Variable.Root.ToRenderLayer(VariableRenderer);
+        }
+        public string GetUserInput(string hint)
+        {
+            InputTextBox inputDialog = new InputTextBox();
+            inputDialog.Title = hint;
+            inputDialog.ShowDialog();
+            return inputDialog.Result;
         }
 
         public BaseNode ErrorNode { get; private set; }

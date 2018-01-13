@@ -13,13 +13,13 @@ namespace CodeBlock.Context.PCAT
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {
             Return calc = new Return();
-            yield return NewPause(Child["while_condition"]);
             while(true)
             {
+                yield return NewPause(Child["while_condition"]);
                 yield return Child["while_condition"].Execute(calc);
                 if (!calc.Bool)
                     break;
-                Child["loop_statements"].Execute();
+                yield return Child["loop_statements"].Execute();
             }
         }
     }

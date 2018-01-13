@@ -6,57 +6,81 @@ using System.Threading.Tasks;
 
 namespace CodeBlock.Context
 {
-    public class Variable
+    public class Variable : ICloneable
     {
         public static Variable Root { get; set; }
-        public string TypeName { get; protected set; }
+        public string TypeName { get; set; }
         private Dictionary<object, object> dict;
+        public Variable Parent;
         public Variable()
         {
             dict = new Dictionary<object, object>();
         }
-        public object this[object name]
+        /*public object this[object name]
         {
             get { return dict[name]; }
             set { dict[name] = value; }
-        }
+        }*/
         public bool ContainsKey(object key)
         {
-            return dict.ContainsKey(key);
+            if (dict.ContainsKey(key))
+                return true;
+            else if (Parent is null)
+                return false;
+            else return Parent.ContainsKey(key);
+        }
+        public object Get(object id)
+        {
+            if (dict.ContainsKey(id))
+                return dict[id];
+            else if (Parent is null)
+                throw new Exception("Cannot find object with name " + id);
+            else return Parent.Get(id);
+        }
+        public Variable GetPrototypeOf(string structureName)
+        {
+            string prototypeName = "@prototype_" + structureName;
+            return Get(prototypeName) as Variable;
+
         }
         public int ChildCount()
         {
             return dict.Count();
         }
-
-        internal void AddVariable(string idName, string typeName, string initValue)
+        public void RegisterObject(object id,object obj)
+        {
+            if(obj is Variable)
+            {
+                dict[id] = obj;
+                (obj as Variable).Parent = this;
+            }
+            else
+            {
+                dict[id] = obj;
+            }
+        }
+        public void RegisterTypeName(object id, string typeName)
         {
             switch(typeName)
             {
                 case "INTEGER":
-                    dict[idName] = initValue is null ? 0 : int.Parse(initValue);
+                    dict[id] = 0;
                     break;
                 case "REAL":
-                    dict[idName] = initValue is null ? 0.0f : float.Parse(initValue);
+                    dict[id] = 0.0f;
                     break;
                 case "BOOLEAN":
-                    if (initValue is null)
-                        dict[idName] = false;
-                    else if (initValue == "TRUE")
-                        dict[idName] = true;
-                    else if (initValue == "FALSE")
-                        dict[idName] = false;
-                    else
-                        throw new FormatException("Illegal boolean value : " + initValue);
+                    dict[id] = false;
                     break;
                 default:
-                    throw new NotImplementedException();
-
+                    Variable prototypeVariable = GetPrototypeOf(typeName);
+                    RegisterObject(id, prototypeVariable.Clone());
+                    break;
             }
 
         }
 
-        public void Assign(object id, object value)
+        public void Reassign(object id, object value)
         {
             if(dict.ContainsKey(id))
             {
@@ -68,9 +92,19 @@ namespace CodeBlock.Context
                     dict[id] = value;
                     return;
                 }
-                else if(dict[id] is float && !(value is int))
+                else if(dict[id] is float && value is int)
                 {
                     dict[id] = (float)(int)value;
+                    return;
+                }
+                else if(dict[id] is float && value is string)
+                {
+                    dict[id] = float.Parse(value.ToString());
+                    return;
+                }
+                else if (dict[id] is int && value is string)
+                {
+                    dict[id] = int.Parse(value.ToString());
                     return;
                 }
                 else
@@ -78,11 +112,11 @@ namespace CodeBlock.Context
                     throw new Exception("Cannot cast variable of type " + GetPCATStyleTypeName(originValue) + " to " + GetPCATStyleTypeName(value));
                 }
             }
-            else
+            else if(Parent is null)
             {
                 throw new Exception("Not decleared variable: " + id);
             }
-            throw new NotImplementedException();
+            Parent.Reassign(id, value);
         }
         private string GetPCATStyleTypeName(object obj)
         {
@@ -134,6 +168,22 @@ namespace CodeBlock.Context
         public override string ToString()
         {
             return ToStringInner("");
+        }
+
+        public object Clone()
+        {
+            Variable clone = new Variable();
+            clone.TypeName = TypeName.Clone() as string;
+            clone.Parent = null;
+            clone.dict = new Dictionary<object, object>();
+            foreach (KeyValuePair<object,object> kv in dict)
+            {
+                object key = kv.Key is ICloneable ? (kv.Key as ICloneable).Clone() : kv.Key;
+                object value = kv.Value is ICloneable ? (kv.Value as ICloneable).Clone() : kv.Value;
+                clone.dict.Add(key, value);
+            }
+            return clone;
+
         }
     }
 }

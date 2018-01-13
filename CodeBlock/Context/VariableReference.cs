@@ -12,11 +12,11 @@ namespace CodeBlock.Context
         public object Offset { get; private set; }
         public object Dereference()
         {
-            return Base[Offset];
+            return Base.Get(Offset);
         }
         public void Assign(object value)
         {
-            Base[Offset] = value;
+            Base.Reassign(Offset, value);
         }
     }
 }

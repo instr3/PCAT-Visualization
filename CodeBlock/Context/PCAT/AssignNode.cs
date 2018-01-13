@@ -23,7 +23,7 @@ namespace CodeBlock.Context.PCAT
                 {
                     throw new Exception("Not decleared variable: " + idName);
                 }
-                Mediator.Instance.ExecutingNameSpace.Assign(idName, rhs.Object);
+                Mediator.Instance.ExecutingNameSpace.Reassign(idName, rhs.Object);
             }
             else
             {

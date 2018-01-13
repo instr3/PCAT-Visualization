@@ -18,13 +18,14 @@ void yyerror(const char* msg) {
 node_t *extract_id_list(const char *type_name, vector<node_t *> *s1, node_t *s2=NULL) 
 {
 	bool extra=s2!=NULL; // Whether an extra '(' or '{' or '[<' is included to calculate bounds
-	if(!extra && s1->size()==1) // Single node without brackets
+	/*if(!extra && s1->size()==1) // Single node without brackets
 	{
 		s2=s1->front();
 		delete s1; // Release memory! 
 		return s2;
 	}
 	else // Create new node
+	*/
 	{
 		node_t *ss = create_virtual_node(type_name,extra?s1->size()-1:s1->size());
 		for(vector<node_t *>::iterator p = extra ? ++s1->begin() : s1->begin(); p != s1->end(); ++p) 

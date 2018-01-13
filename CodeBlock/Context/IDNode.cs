@@ -17,7 +17,7 @@ namespace CodeBlock.Context
             {
                 throw new Exception("Not decleared variable: " + idName);
             }
-            me.Return(Mediator.Instance.ExecutingNameSpace[idName]);
+            me.Return(Mediator.Instance.ExecutingNameSpace.Get(idName));
             yield break;
         }
     }

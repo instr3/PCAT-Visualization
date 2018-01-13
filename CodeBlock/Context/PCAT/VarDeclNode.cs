@@ -15,11 +15,19 @@ namespace CodeBlock.Context.PCAT
             BaseNode ids = Child["var_names"];
             string[] idNames = ids.ChildID.Select(node => node.GetCode()).ToArray();
             string typeName = Child["var_type"].GetCode();
-            string initValue = null;
+            Return initValue = null; // null means no init_value
             if (Child.ContainsKey("init_value"))
-                initValue = Child["init_value"].GetCode();
+            {
+                initValue = new Return();
+                yield return Child["init_value"].Execute(initValue);
+            }
             foreach (string idName in idNames)
-                Mediator.Instance.ExecutingNameSpace.AddVariable(idName, typeName, initValue);
+            {
+                Mediator.Instance.ExecutingNameSpace.RegisterTypeName(idName, typeName);
+                if (!(initValue is null))
+                    Mediator.Instance.ExecutingNameSpace.Reassign(idName, initValue.Object);
+            }
+                
             yield break;
         }
     }
