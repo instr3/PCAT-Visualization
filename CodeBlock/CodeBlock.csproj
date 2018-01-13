@@ -73,6 +73,7 @@
     <Compile Include="CompilerInvoker.cs" />
     <Compile Include="Context\BaseNode.cs" />
     <Compile Include="Context\IDNode.cs" />
+    <Compile Include="Context\PCAT\ArrayConstructionNode.cs" />
     <Compile Include="Context\PCAT\BodyNode.cs" />
     <Compile Include="Context\Interruption.cs" />
     <Compile Include="Context\Mediator.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Context\PCAT\BinaryOpNode.cs" />
     <Compile Include="Context\PCAT\CompDerefNode.cs" />
     <Compile Include="Context\PCAT\ConstantTermNode.cs" />
+    <Compile Include="Context\PCAT\ElementDerefNode.cs" />
     <Compile Include="Context\PCAT\FunctionCallNode.cs" />
     <Compile Include="Context\PCAT\ProcedureDeclNode.cs" />
     <Compile Include="Context\PCAT\ElseIfList.cs" />

@@ -58,7 +58,6 @@ namespace CodeBlock.Context
         {
             string prototypeName = "@prototype_" + structureName;
             return Get(prototypeName) as Variable;
-
         }
         public int ChildCount()
         {

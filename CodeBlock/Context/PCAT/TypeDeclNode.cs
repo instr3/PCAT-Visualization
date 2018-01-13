@@ -29,7 +29,9 @@ namespace CodeBlock.Context.PCAT
             }
             else //innerTypeNode.Type == "array_type"
             {
-                throw new NotImplementedException();
+                string elementTypeName = innerTypeNode.ChildID[0].GetCode();
+                Mediator.Instance.ExecutingNameSpace.RegisterObject("@prototype_" + structureName, prototypeVariable);
+                prototypeVariable.RegisterTypeName("@element", elementTypeName);
             }
             yield break;
         }
