@@ -72,7 +72,7 @@
     </Compile>
     <Compile Include="CompilerInvoker.cs" />
     <Compile Include="Context\BaseNode.cs" />
-    <Compile Include="Context\IDNode.cs" />
+    <Compile Include="Context\PCAT\IDNode.cs" />
     <Compile Include="Context\PCAT\ArrayConstructionNode.cs" />
     <Compile Include="Context\PCAT\BodyNode.cs" />
     <Compile Include="Context\Interruption.cs" />

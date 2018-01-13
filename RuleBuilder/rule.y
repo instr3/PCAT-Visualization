@@ -138,8 +138,8 @@ id_list_suffix: ID {$$=new vector<node_t *>();$$->push_back($1);}
 
 lvalue_list: lvalue_list_suffix {$$=extract_id_list("lvalue_list",$1);}
 
-lvalue_list_suffix: ID {$$=new vector<node_t *>();$$->push_back($1);}
-	| lvalue_list_suffix COMMA ID {$$=$1;$$->push_back($3);}
+lvalue_list_suffix: lvalue {$$=new vector<node_t *>();$$->push_back($1);}
+	| lvalue_list_suffix COMMA lvalue {$$=$1;$$->push_back($3);}
 
 statement_list: statement_list_suffix {$$=extract_id_list("statement_list",$1);}
 

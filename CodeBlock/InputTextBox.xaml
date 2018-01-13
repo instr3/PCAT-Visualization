@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CodeBlock"
         mc:Ignorable="d"
-        Title="输入内容" Height="100" Width="400" FontSize="20">
+        Title="Input value" Height="100" Width="400" FontSize="20">
     <Grid Margin="5" Height="28">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="50"/>
         </Grid.ColumnDefinitions>
         <TextBox Name="Input" Margin="0 0 5 0"/>
-        <Button Content="确认" Grid.Column="1" Click="Button_Click"/>
+        <Button Content="OK" Grid.Column="1" Click="Button_Click"/>
     </Grid>
 </Window>

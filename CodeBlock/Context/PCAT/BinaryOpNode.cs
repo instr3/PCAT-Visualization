@@ -120,6 +120,12 @@ namespace CodeBlock.Context.PCAT
                     else
                         me.Return(lhs.Structure != rhs.Structure);
                     break;
+                case "logical_and":
+                    me.Return(lhs.Bool && rhs.Bool);
+                    break;
+                case "logical_or":
+                    me.Return(lhs.Bool || rhs.Bool);
+                    break;
                 default:
                     throw new NotSupportedException();
             }

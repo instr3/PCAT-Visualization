@@ -15,6 +15,7 @@ namespace CodeBlock.Context.PCAT
             Variable functionTemplate = new Variable();
             functionTemplate.TypeName = ChildID[0].GetCode(); //function_name or procedure_name
             string functionName = "@function_" + functionTemplate.TypeName;
+            Mediator.Instance.ExecutingNameSpace.RegisterObject(functionName, functionTemplate);
             BaseNode parameterList = Child["parameter_list"];
             List<string> paramIndex = new List<string>();
             foreach(BaseNode fpSection in parameterList.ChildID)
@@ -35,7 +36,6 @@ namespace CodeBlock.Context.PCAT
             }
             functionTemplate.RegisterObject("@index", paramIndex.ToArray());
             functionTemplate.RegisterObject("@address", Child["procedure_body"]);
-            Mediator.Instance.ExecutingNameSpace.RegisterObject(functionName, functionTemplate);
             yield break;
         }
     }
