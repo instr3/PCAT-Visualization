@@ -13,14 +13,12 @@ namespace CodeBlock.Context
         public Dictionary<string, Type> DesignationDict { get; private set; }
         public BaseNode RootNode { get; private set; }
         public Detail DetailForm { get; private set; }
-        public List<string> FunctionNames { get; private set; }
-        public List<BaseNode> FunctionNodes { get; private set; }
         public string Code { get; internal set; }
 
-        public BaseNode ExecutingFunction { get; set; }
         public Variable ExecutingNameSpace { get; set; }
 
         public ObservableCollection<RenderLayer> VariableRenderer { get; private set; }
+        public ObservableCollection<RenderLayer> OutputRenderer { get; private set; }
 
         private Mediator()
         {
@@ -75,24 +73,6 @@ namespace CodeBlock.Context
                     baseNodes[fatherID].LinkChild(baseNodes[i], rawNodes[i].FatherLinkType);
                 }
             }
-            FunctionNames = new List<string>();
-            FunctionNodes = new List<BaseNode>();
-            for (int i = 0; i < baseNodes.Length; ++i)
-            {
-                BaseNode node = baseNodes[i];
-                if (node is null)
-                    continue;
-                if (node.Type == "program")
-                {
-                    FunctionNames.Add("PROGRAM");
-                    FunctionNodes.Add(node);
-                }
-                else if(node.Type=="procedure_decl")
-                {
-                    FunctionNames.Add(node.ChildID[0].GetCode());
-                    FunctionNodes.Add(node);
-                }
-            }
 
             Variable.Root.RegisterObject("$OUTPUT$", new Variable());
         }
@@ -100,18 +80,32 @@ namespace CodeBlock.Context
         {
             DetailForm = detailForm;
             VariableRenderer = new ObservableCollection<RenderLayer>();
+            OutputRenderer = new ObservableCollection<RenderLayer>();
             DetailForm.resultView.ItemsSource = VariableRenderer;
+            DetailForm.outputView.ItemsSource = OutputRenderer;
         }
         IEnumerator<Interruption> interruptions;
-        bool programEnded;
+        public bool ProgramEnded { get; private set; }
+        public bool IsDebug { get; private set; }
+        private void UpdateVisualizer()
+        {
+            Variable.Root.ToRenderLayer(VariableRenderer, IsDebug);
+            Variable.Root.ToOutputLayer(OutputRenderer);
+        }
+        public void SwitchDebugMode()
+        {
+            IsDebug = !IsDebug;
+            if (!(interruptions is null))
+                UpdateVisualizer();
+        }
         public void ExecuteOneStep()
         {
             if (interruptions is null)
             {
                 interruptions = RootNode.Execute().GetEnumerator();
-                programEnded = false;
+                ProgramEnded = false;
             }
-            if (programEnded)
+            if (ProgramEnded)
             {
                 DetailForm.ShowError("Program end!");
                 return;
@@ -125,19 +119,19 @@ namespace CodeBlock.Context
             }
             else
             {
-                programEnded = true;
+                ProgramEnded = true;
                 DetailForm.HideAllRectangles();
             }
-            Variable.Root.ToRenderLayer(VariableRenderer);
+            UpdateVisualizer();
         }
         public void ExecuteToEnd()
         {
             if (interruptions is null)
             {
                 interruptions = RootNode.Execute().GetEnumerator();
-                programEnded = false;
+                ProgramEnded = false;
             }
-            if (programEnded)
+            if (ProgramEnded)
             {
                 DetailForm.ShowError("Program end!");
                 return;
@@ -163,10 +157,10 @@ namespace CodeBlock.Context
             }
             if(!broke)
             {
-                programEnded = true;
+                ProgramEnded = true;
                 DetailForm.HideAllRectangles();
             }
-            Variable.Root.ToRenderLayer(VariableRenderer);
+            UpdateVisualizer();
         }
         public string GetUserInput(string hint)
         {

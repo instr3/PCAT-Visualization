@@ -12,7 +12,6 @@ namespace CodeBlock.Context.PCAT
 
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {
-            Mediator.Instance.ExecutingFunction = this;
             Mediator.Instance.ExecutingNameSpace = Variable.Root;
             yield return ChildID[0].Execute();
         }

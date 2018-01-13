@@ -145,29 +145,53 @@ namespace CodeBlock.Context
                 return "structure";
             return obj.GetType().ToString();
         }
-        private void ToRenderLayerInner(ICollection<RenderLayer> layers, int depth, object suffix)
+        private void ToRenderLayerInner(ICollection<RenderLayer> layers, int depth, object suffix, bool debug)
         {
-
             string str = suffix.ToString();
             if (!string.IsNullOrEmpty(TypeName))
                 str += " : " + TypeName;
-            layers.Add(new RenderLayer(depth, str));
+            if(depth >= 0)
+                layers.Add(new RenderLayer(depth, str));
             foreach (KeyValuePair<object, object> kv in dict)
             {
+                // Debug information
+                if (!debug && kv.Key.ToString().StartsWith("@") || kv.Key.ToString().StartsWith("$"))
+                    continue;
                 if (kv.Value is Variable)
-                    (kv.Value as Variable).ToRenderLayerInner(layers, depth + 1, kv.Key);
+                {
+                    (kv.Value as Variable).ToRenderLayerInner(layers, depth + 1, kv.Key, debug);
+                }
                 else
                 {
                     char connector = kv.Key is int ? ':' : '=';
-                    layers.Add(new RenderLayer(depth + 1, kv.Key.ToString() + " "+ connector + " " + kv.Value.ToString().Replace("\n", "\\n")));
+                    string valueToString = kv.Value.ToString();
+                    if(kv.Value is IEnumerable<string>)
+                    {
+                        valueToString = "{" +
+                            string.Join(",", kv.Value as IEnumerable<string>) + "}";
+                    }
+                    else if(kv.Value is BaseNode)
+                    {
+                        valueToString = "BaseNode @ " + (kv.Value as BaseNode).ID.ToString();
+                    }
+                    layers.Add(new RenderLayer(depth + 1, kv.Key.ToString() + " "+ connector + " " + valueToString));
                 }
                     
             }
         }
-        public void ToRenderLayer(ICollection<RenderLayer> layers)
+        public void ToRenderLayer(ICollection<RenderLayer> layers, bool debug)
         {
             layers.Clear();
-            ToRenderLayerInner(layers, 0, "root");
+            ToRenderLayerInner(layers, debug ? 0 : -1, "root", debug);
+        }
+        public void ToOutputLayer(ICollection<RenderLayer> layers)
+        {
+            layers.Clear();
+            Variable outputVariable = Root.dict["$OUTPUT$"] as Variable;
+            foreach(KeyValuePair<object,object> kv in outputVariable.dict)
+            {
+                layers.Add(new RenderLayer(0, kv.Value.ToString()));
+            }
         }
         private string ToStringInner(string suffix)
         {

@@ -587,6 +587,13 @@ namespace CodeBlock
             }
         }
         bool runningProgram = false;
+        private void UpdateButtonState()
+        {
+            RunButton.IsEnabled = !Mediator.Instance.ProgramEnded;
+            SingleStepButton.IsEnabled = !Mediator.Instance.ProgramEnded;
+            DebugModeButton.Content = Mediator.Instance.IsDebug ? "Debug On" : "Debug Off";
+        }
+
         private void ButtonRun_Click(object sender, RoutedEventArgs e)
         {
             if(!runningProgram)
@@ -596,6 +603,7 @@ namespace CodeBlock
                 runningProgram = true;
             }
             Mediator.Instance.ExecuteToEnd();
+            UpdateButtonState();
         }
 
         private void ButtonSingleStep_Click(object sender, RoutedEventArgs e)
@@ -607,7 +615,27 @@ namespace CodeBlock
                 runningProgram = true;
             }
             Mediator.Instance.ExecuteOneStep();
+            UpdateButtonState();
+        }
 
+        private void ButtonRestart_Click(object sender, RoutedEventArgs e)
+        {
+            Mediator.Instance.RegisterForm(this);
+            Mediator.Instance.RegisterGrammarTree(nodes);
+            runningProgram = true;
+            Mediator.Instance.ExecuteOneStep();
+            UpdateButtonState();
+        }
+
+        private void ButtonDebugMode_Click(object sender, RoutedEventArgs e)
+        {
+            Mediator.Instance.SwitchDebugMode();
+            UpdateButtonState();
+        }
+
+        private void outputView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("wow");
         }
     }
 }
