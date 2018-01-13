@@ -12,7 +12,8 @@ namespace CodeBlock.Context.PCAT
 
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {
-            yield return Child["declarations"].Execute();
+            if(Child.ContainsKey("declarations"))
+                yield return Child["declarations"].Execute();
             yield return Child["process"].Execute();
 
         }

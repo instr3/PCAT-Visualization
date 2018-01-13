@@ -8,7 +8,7 @@ namespace CodeBlock.Context.PCAT
 {
     class IgnoredNode : BaseNode
     {
-        public override string AcceptedTypeNames => "procedure_decl";
+        public override string AcceptedTypeNames => "";
 
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {

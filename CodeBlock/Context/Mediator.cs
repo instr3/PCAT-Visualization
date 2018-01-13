@@ -89,7 +89,7 @@ namespace CodeBlock.Context
                 }
                 else if(node.Type=="procedure_decl")
                 {
-                    FunctionNames.Add(node.Child["procedure_name"].GetCode());
+                    FunctionNames.Add(node.ChildID[0].GetCode());
                     FunctionNodes.Add(node);
                 }
             }

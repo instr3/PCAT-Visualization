@@ -13,7 +13,7 @@ namespace CodeBlock.Context
         protected override IEnumerable<IEnumerable<Interruption>> InnerExecute(Return.ReturnSetter me)
         {
             string idName = GetCode();
-            if (!Mediator.Instance.ExecutingNameSpace.ContainsKey(idName))
+            if (!Mediator.Instance.ExecutingNameSpace.CanFind(idName))
             {
                 throw new Exception("Not decleared variable: " + idName);
             }

@@ -167,7 +167,7 @@ statement: lvalue ASSIGN expression SEMICOLON { $$ = helper_biop(assign#l_value#
 	| FOR ID ASSIGN expression TO expression BY expression DO statement_list END SEMICOLON { $$ = helper_quinop(for#loop_variable#loop_init_value#loop_end_value#loop_step_size#loop_statements,$2,$4,$6,$8,$10)->rebound($1)->rebound($12); }
 	| EXIT SEMICOLON { $$ = create_virtual_node("exit",0)->rebound($1)->rebound($2); }
 	| RETURN expression SEMICOLON { $$ = helper_uniop(return#return_value,$2)->rebound($1)->rebound($3); }
-	// Todo: Add more
+	| RETURN SEMICOLON { $$ = create_virtual_node("return",0)->rebound($1)->rebound($2); }
 
 write_params: LPAREN RPAREN {$$ = create_virtual_node("write_params",0)->rebound($1)->rebound($2);} // 0 parameter situation
 	| write_params_suffix RPAREN {$$=extract_id_list("write_params",$1,$2);}

@@ -21,14 +21,30 @@ namespace CodeBlock.Context
             get { return dict[name]; }
             set { dict[name] = value; }
         }*/
-        public bool ContainsKey(object key)
+        public bool CanFind(object key)
         {
             if (dict.ContainsKey(key))
                 return true;
             else if (Parent is null)
                 return false;
-            else return Parent.ContainsKey(key);
+            else return Parent.CanFind(key);
         }
+
+        public bool CurrentLevelContainsKey(object key)
+        {
+            return dict.ContainsKey(key);
+        }
+
+        public object CurrentLevelGet(object key)
+        {
+            return dict[key];
+        }
+
+        public void CurrentLevelEraseKey(object key)
+        {
+            dict.Remove(key);
+        }
+
         public object Get(object id)
         {
             if (dict.ContainsKey(id))
@@ -37,6 +53,7 @@ namespace CodeBlock.Context
                 throw new Exception("Cannot find object with name " + id);
             else return Parent.Get(id);
         }
+
         public Variable GetPrototypeOf(string structureName)
         {
             string prototypeName = "@prototype_" + structureName;

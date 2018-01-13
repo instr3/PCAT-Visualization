@@ -19,7 +19,7 @@ namespace CodeBlock.Context.PCAT
             if (Child["l_value"].Type=="ID")
             {
                 string idName = Child["l_value"].GetCode();
-                if(!Mediator.Instance.ExecutingNameSpace.ContainsKey(idName))
+                if(!Mediator.Instance.ExecutingNameSpace.CanFind(idName))
                 {
                     throw new Exception("Not decleared variable: " + idName);
                 }

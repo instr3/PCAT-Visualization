@@ -16,8 +16,19 @@ namespace CodeBlock.Context.PCAT
             foreach (BaseNode writeExpr in thingsToRead.ChildID)
             {
                 string idName = writeExpr.GetCode();
-                Mediator.Instance.ExecutingNameSpace.Reassign(idName, 
-                    Mediator.Instance.GetUserInput("Please input "+idName));
+                while(true)
+                {
+                    string inputValue = Mediator.Instance.GetUserInput("Please input " + idName);
+                    try
+                    {
+                        Mediator.Instance.ExecutingNameSpace.Reassign(idName, inputValue);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    break;
+                }
             }
             yield break;
         }

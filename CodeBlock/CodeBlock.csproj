@@ -79,6 +79,8 @@
     <Compile Include="Context\PCAT\AssignNode.cs" />
     <Compile Include="Context\PCAT\BinaryOpNode.cs" />
     <Compile Include="Context\PCAT\ConstantTermNode.cs" />
+    <Compile Include="Context\PCAT\FunctionCallNode.cs" />
+    <Compile Include="Context\PCAT\ProcedureDeclNode.cs" />
     <Compile Include="Context\PCAT\ElseIfList.cs" />
     <Compile Include="Context\PCAT\ElsifNode.cs" />
     <Compile Include="Context\PCAT\ExitNode.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Context\PCAT\NumberNode.cs" />
     <Compile Include="Context\PCAT\ReadNode.cs" />
     <Compile Include="Context\PCAT\RecordConstructionNode.cs" />
+    <Compile Include="Context\PCAT\ReturnNode.cs" />
     <Compile Include="Context\PCAT\StatementListNode.cs" />
     <Compile Include="Context\PCAT\TypeDeclNode.cs" />
     <Compile Include="Context\PCAT\UnaryOpNode.cs" />

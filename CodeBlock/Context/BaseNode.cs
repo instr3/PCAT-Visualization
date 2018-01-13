@@ -62,23 +62,8 @@ namespace CodeBlock.Context
             node.FatherLinkName = linkName;
             node.Depth = Depth + 1;
         }
-        // When you need a return value
-        public IEnumerable<Interruption> Execute(Return returnGetter)
-        {
-            Return.ReturnSetter returnSetter = new Return.ReturnSetter();
-            foreach (IEnumerable<Interruption> col in InnerExecute(returnSetter))
-            {
-                foreach(Interruption ir in col)
-                {
-                    yield return ir;
-                }
-            }
-            returnSetter.SetReturnGetter(returnGetter);
-            yield break;
-        }
-
-        // When you do not need a return value
-        public IEnumerable<Interruption> Execute()
+        
+        public IEnumerable<Interruption> Execute(Return returnGetter=null)
         {
             Return.ReturnSetter returnSetter = new Return.ReturnSetter();
             foreach (IEnumerable<Interruption> col in InnerExecute(returnSetter))
@@ -87,7 +72,7 @@ namespace CodeBlock.Context
                 {
                     if (ir.Type == "exit")
                     {
-                        // for valid exit, a for/while/loop can be met outside
+                        // For valid exit, a for/while/loop can be met outside
                         if (Type == "for" || Type == "while" || Type == "loop")
                         {
                             yield break;
@@ -102,11 +87,28 @@ namespace CodeBlock.Context
                             yield break;
                         }
                     }
+                    else if(ir.Type=="return")
+                    {
+                        // Return to upper level of body node
+                        if (Type == "body")
+                        {
+                            yield break;
+                        }
+                        else // Pass to parent's executor
+                        {
+                            yield return ir;
+                            yield break;
+                        }
+                    }
                     else
                     {
                         yield return ir;
                     }
                 }
+            }
+            if(!(returnGetter is null))
+            {
+                returnSetter.SetReturnGetter(returnGetter);
             }
             yield break;
         }

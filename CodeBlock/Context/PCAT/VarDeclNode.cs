@@ -14,7 +14,11 @@ namespace CodeBlock.Context.PCAT
         {
             BaseNode ids = Child["var_names"];
             string[] idNames = ids.ChildID.Select(node => node.GetCode()).ToArray();
-            string typeName = Child["var_type"].GetCode();
+            string typeName = "";
+            if (Child.ContainsKey("var_type"))
+            {
+                typeName = Child["var_type"].GetCode();
+            }
             Return initValue = null; // null means no init_value
             if (Child.ContainsKey("init_value"))
             {
@@ -23,9 +27,20 @@ namespace CodeBlock.Context.PCAT
             }
             foreach (string idName in idNames)
             {
-                Mediator.Instance.ExecutingNameSpace.RegisterTypeName(idName, typeName);
-                if (!(initValue is null))
-                    Mediator.Instance.ExecutingNameSpace.Reassign(idName, initValue.Object);
+                if(typeName!="")
+                {
+                    Mediator.Instance.ExecutingNameSpace.RegisterTypeName(idName, typeName);
+                    if (!(initValue is null))
+                        Mediator.Instance.ExecutingNameSpace.Reassign(idName, initValue.Object);
+                }
+                else if (!(initValue is null))
+                {
+                    Mediator.Instance.ExecutingNameSpace.RegisterObject(idName, initValue.Object);
+                }
+                else
+                {
+                    throw new Exception("Neither initial value nor type is provided on variable declaration.");
+                }
             }
                 
             yield break;
