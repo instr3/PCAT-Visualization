@@ -78,6 +78,7 @@
     <Compile Include="Context\Mediator.cs" />
     <Compile Include="Context\PCAT\AssignNode.cs" />
     <Compile Include="Context\PCAT\BinaryOpNode.cs" />
+    <Compile Include="Context\PCAT\CompDerefNode.cs" />
     <Compile Include="Context\PCAT\ConstantTermNode.cs" />
     <Compile Include="Context\PCAT\FunctionCallNode.cs" />
     <Compile Include="Context\PCAT\ProcedureDeclNode.cs" />

@@ -17,7 +17,13 @@ namespace CodeBlock.Context
             {
                 throw new Exception("Not decleared variable: " + idName);
             }
-            me.Return(Mediator.Instance.ExecutingNameSpace.Get(idName));
+            object returnObject = Mediator.Instance.ExecutingNameSpace.Get(idName);
+            // Need clone here!!
+            if(returnObject is ICloneable)
+            {
+                returnObject = (returnObject as ICloneable).Clone();
+            }
+            me.Return(returnObject);
             yield break;
         }
     }

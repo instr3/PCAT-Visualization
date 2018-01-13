@@ -14,25 +14,16 @@ namespace CodeBlock.Context
             none=0,
             integer=1,
             real=2,
-            boolean=3,
-            structure=4,
-            reference=-1
+            boolean=4,
+            structure=8,
+            reference=1024
         }
         private ReturnTypeEnum type;
-        private object storeObject;
-        private object value
-        {
-            get
-            {
-                if (type == ReturnTypeEnum.reference)
-                    return ((VariableReference)storeObject).Dereference();
-                else
-                    return storeObject;
-            }
-        }
+        private object storeReference;
+        private object value;
         public Return()
         {
-            storeObject = null;
+            storeReference = null;
             type = ReturnTypeEnum.none;
         }
 
@@ -45,15 +36,15 @@ namespace CodeBlock.Context
         }
         public bool IsBool()
         {
-            return type == ReturnTypeEnum.boolean;
+            return (type & ReturnTypeEnum.boolean) != 0;
         }
         public float Real
         {
             get
             {
-                if(type==ReturnTypeEnum.real)
+                if (IsReal())
                     return (float)value;
-                if (type == ReturnTypeEnum.integer)
+                if (IsInteger())
                     return (float)(int)value;
                 throw new Exception("Type error: excepted real, got " + type);
                 
@@ -61,28 +52,28 @@ namespace CodeBlock.Context
         }
         public bool IsReal()
         {
-            return type == ReturnTypeEnum.real;
+            return (type & ReturnTypeEnum.real) != 0;
         }
         public int Integer
         {
             get
             {
-                if (type != ReturnTypeEnum.integer)
+                if (!IsInteger())
                     throw new Exception("Type error: excepted integer, got " + type);
                 return (int)value;
             }
         }
         public bool IsInteger()
         {
-            return type == ReturnTypeEnum.integer;
+            return (type & ReturnTypeEnum.integer) != 0;
         }
         public bool IsNumber()
         {
-            return type == ReturnTypeEnum.integer || type == ReturnTypeEnum.real;
+            return (type & (ReturnTypeEnum.integer | ReturnTypeEnum.real)) !=0;
         }
         public bool IsStructure()
         {
-            return type == ReturnTypeEnum.structure;
+            return (type & ReturnTypeEnum.structure) != 0;
         }
         public Variable Structure
         {
@@ -95,28 +86,41 @@ namespace CodeBlock.Context
         {
             get
             {
-                return storeObject as VariableReference;
+                return storeReference as VariableReference;
             }
         }
         public object Object { get => value; }
 
-        private void SetValue(object inputValue)
+        private void SetValue(object inputObject)
         {
-            storeObject = inputValue;
-            if (storeObject == null)
-                type = ReturnTypeEnum.none;
-            else if (storeObject is int)
-                type = ReturnTypeEnum.integer;
-            else if (storeObject is float)
-                type = ReturnTypeEnum.real;
-            else if (storeObject is bool)
-                type = ReturnTypeEnum.boolean;
-            else if (storeObject is Variable)
-                type = ReturnTypeEnum.structure;
-            else if (storeObject is VariableReference)
-                type = ReturnTypeEnum.reference;
+            if (inputObject is VariableReference)
+            {
+                storeReference = inputObject;
+                value = ((VariableReference)storeReference).Dereference();
+                // Need clone here, too!!
+                if (value is ICloneable)
+                {
+                    value = (value as ICloneable).Clone();
+                }
+            }
             else
-                throw new NotSupportedException("Unsupported type as return:" + inputValue.GetType().ToString());
+            {
+                value = inputObject;
+            }
+            if (value is null)
+                type = ReturnTypeEnum.none;
+            else if (value is int)
+                type = ReturnTypeEnum.integer;
+            else if (value is float)
+                type = ReturnTypeEnum.real;
+            else if (value is bool)
+                type = ReturnTypeEnum.boolean;
+            else if (value is Variable)
+                type = ReturnTypeEnum.structure;
+            else if (inputObject is VariableReference)
+                type |= ReturnTypeEnum.reference;
+            else
+                throw new NotSupportedException("Unsupported type as return:" + inputObject.GetType().ToString());
 
         }
         public class ReturnSetter

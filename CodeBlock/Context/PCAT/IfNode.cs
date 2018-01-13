@@ -25,7 +25,7 @@ namespace CodeBlock.Context.PCAT
                 if(Child.ContainsKey("elsif_part"))
                     yield return Child["elsif_part"].Execute(calc);
                 if(!calc.Bool && Type == "if_else")
-                    yield return Child["else_part"].Execute(calc);
+                    yield return Child["else_part"].Execute();
             }
         }
     }

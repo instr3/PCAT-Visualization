@@ -8,15 +8,11 @@ namespace CodeBlock.Context
 {
     public class VariableReference
     {
-        public Variable Base { get; private set; }
-        public object Offset { get; private set; }
+        public Variable Base { get; set; }
+        public object Offset { get; set; }
         public object Dereference()
         {
             return Base.Get(Offset);
-        }
-        public void Assign(object value)
-        {
-            Base.Reassign(Offset, value);
         }
     }
 }

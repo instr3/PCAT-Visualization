@@ -21,13 +21,16 @@ namespace CodeBlock.Context.PCAT
                 string idName = Child["l_value"].GetCode();
                 if(!Mediator.Instance.ExecutingNameSpace.CanFind(idName))
                 {
-                    throw new Exception("Not decleared variable: " + idName);
+                    throw new Exception("Not declared variable: " + idName);
                 }
                 Mediator.Instance.ExecutingNameSpace.Reassign(idName, rhs.Object);
             }
             else
             {
-                throw new NotImplementedException();
+                Return lhs = new Return();
+                yield return Child["l_value"].Execute(lhs);
+                VariableReference reference = lhs.Reference;
+                reference.Base.Reassign(reference.Offset, rhs.Object);
             }
         }
     }

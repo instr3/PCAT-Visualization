@@ -66,7 +66,7 @@ namespace CodeBlock.Context
         }
         public void RegisterObject(object id,object obj)
         {
-            if(obj is Variable)
+            if (obj is Variable)
             {
                 dict[id] = obj;
                 (obj as Variable).Parent = this;
@@ -190,7 +190,8 @@ namespace CodeBlock.Context
         public object Clone()
         {
             Variable clone = new Variable();
-            clone.TypeName = TypeName.Clone() as string;
+            if(!(TypeName is null))
+                clone.TypeName = TypeName.Clone() as string;
             clone.Parent = null;
             clone.dict = new Dictionary<object, object>();
             foreach (KeyValuePair<object,object> kv in dict)
