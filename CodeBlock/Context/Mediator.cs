@@ -142,15 +142,30 @@ namespace CodeBlock.Context
                 DetailForm.ShowError("Program end!");
                 return;
             }
+            List<int> breakPoints = DetailForm.GetBreakLines();
+            bool broke = false;
             while (interruptions.MoveNext())
             {
-                //throw new NotImplementedException();
-                //Interruption interruption = interruptions.Current;
-                //DetailForm.ShowRectangles(interruption.Position.ID, false);
-                //DetailForm.ShowError(interruption.Type);
+                Interruption interruption = interruptions.Current;
+                if (interruption.Type != "pause")
+                {
+                    DetailForm.ShowRectangles(interruption.Position.ID, false);
+                    DetailForm.ShowError(interruption.Type);
+                    broke = true;
+                    break;
+                }
+                else if(breakPoints.Contains(interruption.Position.RawNode.LineNumber))
+                {
+                    DetailForm.ShowRectangles(interruption.Position.ID, false);
+                    broke = true;
+                    break;
+                }
             }
-            programEnded = true;
-            DetailForm.HideAllRectangles();
+            if(!broke)
+            {
+                programEnded = true;
+                DetailForm.HideAllRectangles();
+            }
             Variable.Root.ToRenderLayer(VariableRenderer);
         }
         public string GetUserInput(string hint)
